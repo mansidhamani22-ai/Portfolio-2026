@@ -1,7 +1,6 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { Project } from '../types';
-import { X, ArrowRight, BookOpen, ArrowDown, ArrowLeft, ArrowUpRight } from 'lucide-react';
+import { X, ArrowRight, BookOpen, ArrowDown, ArrowLeft, ArrowUpRight, ArrowUp } from 'lucide-react';
 
 interface ProjectModalProps {
   project: Project | null;
@@ -20,7 +19,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
 
   // Intersection Observer for images and contact section
   useEffect(() => {
-    if (!isOpen || !containerRef.current) return;
+    if (!isOpen || !containerRef.current || !project) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -32,15 +31,27 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
       },
       { 
         root: containerRef.current,
-        threshold: 0.05,
-        rootMargin: '0px 0px -50px 0px'
+        threshold: 0.01,
+        rootMargin: '10% 0px 20% 0px'
       }
     );
 
     const elements = containerRef.current.querySelectorAll('.project-image-scroll, .contact-reveal');
     elements.forEach((el) => observer.observe(el));
 
-    return () => observer.disconnect();
+    const timer = setTimeout(() => {
+      elements.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight) {
+          el.classList.add('active');
+        }
+      });
+    }, 1100);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(timer);
+    };
   }, [isOpen, project]);
 
   // Handle scroll events
@@ -75,7 +86,10 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
       }
       const currentRef = containerRef.current;
       currentRef?.addEventListener('scroll', handleScroll, { passive: true });
-      return () => currentRef?.removeEventListener('scroll', handleScroll);
+      return () => {
+        currentRef?.removeEventListener('scroll', handleScroll);
+        document.body.style.overflow = 'auto';
+      };
     } else {
       document.body.style.overflow = 'auto';
     }
@@ -101,7 +115,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
     >
       <div className="absolute inset-0 bg-black/98" onClick={onClose} />
       
-      {/* Scroll Progress Bar */}
       <div className="fixed top-0 left-0 w-full h-[2px] z-[650] bg-gray-200/10">
         <div 
           className="h-full bg-black dark:bg-white transition-all duration-75 ease-out" 
@@ -111,11 +124,15 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
 
       <div 
         ref={containerRef}
-        className={`relative w-full h-full bg-white dark:bg-[#050505] overflow-y-auto overflow-x-hidden transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] transform ${
+        className={`relative w-full h-full bg-white dark:bg-[#050505] overflow-y-auto overflow-x-hidden scroll-smooth transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] transform shadow-2xl ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
+        style={{ 
+          WebkitOverflowScrolling: 'touch',
+          overscrollBehavior: 'contain'
+        }}
       >
-        {/* Sticky Header */}
+        {/* Header */}
         <div className="sticky top-0 left-0 w-full z-[610] p-4 md:p-6 flex justify-between items-center bg-white/95 dark:bg-[#050505]/95 backdrop-blur-xl border-b border-black/5 dark:border-white/5">
           <div className="flex items-center space-x-4">
              <button 
@@ -130,27 +147,11 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
                   <span className="text-[9px] font-black uppercase tracking-[0.3em] text-gray-400">Viewing Project</span>
                   <span className="text-xs font-black uppercase tracking-tight text-black dark:text-white">{project.title}</span>
                 </div>
-                {!showHeaderTitle && (
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-black dark:bg-white flex items-center justify-center rounded-sm">
-                      <BookOpen size={14} className="text-white dark:text-black" />
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-black dark:text-white">PROJECT ARCHIVE</span>
-                  </div>
-                )}
              </div>
           </div>
-
-          <button 
-            onClick={onClose}
-            className="group flex items-center space-x-4 px-6 py-2.5 bg-black dark:bg-white text-white dark:text-black rounded-full transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-xl"
-          >
-            <span className="hidden md:inline text-[10px] font-black uppercase tracking-widest">Close</span>
-            <X size={16} className="group-hover:rotate-90 transition-transform" />
-          </button>
         </div>
 
-        {/* Hero Image */}
+        {/* Hero */}
         <div className="w-full h-screen overflow-hidden">
           <img 
             src={project.thumbnail} 
@@ -177,17 +178,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
                           {project.fullDescription}
                         </p>
                      </div>
-                     <button 
-                        onClick={jumpToImages}
-                        className="flex items-center space-x-6 group cursor-pointer"
-                     >
-                        <div className="w-14 h-14 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center group-hover:scale-110 transition-all duration-500 shadow-xl">
-                           <ArrowDown size={24} className="group-hover:translate-y-1 transition-transform" />
-                        </div>
-                        <div className="flex flex-col items-start border-b border-black/10 dark:border-white/10 pb-1">
-                          <span className="text-[10px] font-black uppercase tracking-widest text-black dark:text-white">Begin Visual Journey</span>
-                        </div>
-                     </button>
                   </div>
                 </div>
               </div>
@@ -207,7 +197,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
           </section>
         </div>
 
-        {/* Project Images */}
+        {/* Images */}
         <section id="project-image-sequence" className="space-y-0">
            {project.images.map((img, idx) => (
               <div 
@@ -218,25 +208,22 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
                   src={img} 
                   alt={`${project.title} detail ${idx + 1}`} 
                   className="w-full h-auto object-cover grayscale hover:grayscale-0 transition-all duration-[1.5s]"
+                  loading="lazy"
                 />
               </div>
            ))}
         </section>
 
-        {/* REFINED CONTACT SECTION - Text only, button removed as requested */}
-        <section className="contact-reveal w-full bg-black text-white px-6 md:px-12 lg:px-24 py-32 md:py-56 mt-20 opacity-0 translate-y-12 transition-all duration-1000 ease-out overflow-visible">
+        {/* Contact Section */}
+        <section className="contact-reveal w-full bg-black text-white px-6 md:px-12 lg:px-24 py-32 md:py-56 mt-20 opacity-0 translate-y-12 transition-all duration-1000 ease-out">
            <div className="flex flex-col lg:flex-row justify-between items-start gap-20 lg:gap-32">
-              
-              {/* Left Column: Bold Headline */}
               <div className="max-w-4xl w-full">
-                 <h2 className="text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.15] tracking-tight text-white m-0 p-0 overflow-visible">
+                 <h2 className="text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.15] tracking-tight text-white m-0 p-0">
                     Have a project in mind?<br/>
                     I’d be happy to hear your thoughts<br/>
                     and explore it together.
                  </h2>
               </div>
-
-              {/* Right Column: Navigation Links Stacks */}
               <div className="flex flex-col sm:flex-row gap-24 lg:gap-32 w-full lg:w-auto pt-10 lg:pt-4">
                  <div className="flex flex-col space-y-6">
                     {['Work', 'About', 'Resume'].map(link => (
@@ -251,7 +238,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
                       { name: 'Linkedin', url: 'https://www.linkedin.com/in/maansi-dhamani-85301a348' },
                       { name: 'Email', url: 'mailto:maansidhamani@gmail.com' }
                     ].map(social => (
-                       <a key={social.name} href={social.url} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 text-[14px] font-black uppercase tracking-[0.3em] text-white hover:text-gray-400 transition-colors w-fit leading-none">
+                       <a key={social.name} href={social.url} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 text-[14px] font-black uppercase tracking-widest text-white hover:text-gray-400 transition-colors w-fit leading-none">
                           <span>{social.name}</span>
                           <ArrowUpRight size={14} className="opacity-50" />
                        </a>
@@ -261,35 +248,24 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
            </div>
         </section>
 
-        {/* Footer Navigation */}
-        <div className="bg-white dark:bg-[#050505] container mx-auto px-6 md:px-12 lg:px-24 pt-48 pb-64 border-t border-black/5 dark:border-white/5 flex flex-col items-center text-center space-y-16">
-          <div className="space-y-8">
-            <h4 className="text-6xl md:text-[12vw] font-black uppercase tracking-tighter text-black dark:text-white dzinr-text leading-[0.8]">End of<br/><span className="text-gray-100 dark:text-gray-900">Study.</span></h4>
-            <div className="flex flex-col items-center space-y-4">
-              <p className="text-gray-400 uppercase text-[10px] font-black tracking-[0.6em]">Thank you for exploring this project</p>
-              <div className="w-1 h-12 bg-gradient-to-b from-gray-200 to-transparent dark:from-gray-800" />
-            </div>
-          </div>
-          
+        {/* Footer Navigation - Simplified to only show the arrow button */}
+        <div className="bg-white dark:bg-[#050505] container mx-auto px-6 md:px-12 lg:px-24 pt-32 pb-48 border-t border-black/5 dark:border-white/5 flex flex-col items-center justify-center">
           <button 
              onClick={onClose}
-             className="group flex flex-col items-center space-y-8 cursor-pointer active:scale-95 transition-all"
+             className="group relative w-20 h-20 md:w-24 md:h-24 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center transition-all duration-700 hover:scale-110 active:scale-95 shadow-2xl overflow-hidden"
           >
-             <div className="w-24 h-24 border-2 border-black dark:border-white rounded-full flex items-center justify-center transition-all duration-700 group-hover:bg-black dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black">
-               <ArrowRight className="-rotate-45 group-hover:rotate-0 transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]" size={32} />
-             </div>
-             <div className="text-center">
-               <span className="block text-[10px] font-black uppercase tracking-[0.5em] text-gray-400 mb-2">Back to Main Portfolio</span>
-               <span className="text-2xl font-black uppercase tracking-widest text-black dark:text-white underline underline-offset-8 decoration-gray-200">CLOSE CASE</span>
-             </div>
+             <ArrowUp size={32} className="transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1" />
           </button>
         </div>
-
       </div>
+
       <style>{`
         .project-image-scroll.active, .contact-reveal.active {
           opacity: 1 !important;
           transform: translateY(0) !important;
+        }
+        .scroll-smooth {
+          scroll-behavior: smooth;
         }
       `}</style>
     </div>
