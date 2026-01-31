@@ -1,17 +1,18 @@
+
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import Header from './components/Header';
 import ProjectModal from './components/ProjectModal';
-import Assistant from './components/Assistant';
 import AboutPage from './components/AboutPage';
 import ResumePage from './components/ResumePage';
 import CategoryPage from './components/CategoryPage';
+import PenToolBackground from './components/PenToolBackground';
 import { PROJECTS } from './constants';
 import { Category, Project } from './types';
 import { 
   ArrowDown, ArrowRight, ArrowUp, Info, Loader2, SkipForward, SkipBack, Moon, Sun, Mail, ArrowUpRight, Smile
 } from 'lucide-react';
 
-const CATEGORIES: Category[] = ['Packaging Design', 'Branding', 'Magazine design', 'Book Design'];
+const CATEGORIES: Category[] = ['Packaging Design', 'Branding', 'Publication Design'];
 
 const TRACKS = [
   { 
@@ -312,6 +313,16 @@ export default function App() {
     sound.play().catch(() => {});
   };
 
+  const checkReveals = useCallback(() => {
+    const reveals = document.querySelectorAll('.reveal');
+    reveals.forEach(el => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.95) {
+        el.classList.add('active');
+      }
+    });
+  }, []);
+
   useEffect(() => {
     const handleGlobalScroll = () => {
       const y = window.scrollY;
@@ -319,19 +330,25 @@ export default function App() {
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       const scrolled = docHeight > 0 ? (y / docHeight) * 100 : 0;
       setGlobalScroll(scrolled);
-
-      const reveals = document.querySelectorAll('.reveal');
-      reveals.forEach(el => {
-        const rect = el.getBoundingClientRect();
-        if (rect.top < window.innerHeight * 0.95) {
-          el.classList.add('active');
-        }
-      });
+      checkReveals();
     };
+    
     window.addEventListener('scroll', handleGlobalScroll);
     handleGlobalScroll();
+    
+    // Initial reveal check after a small delay to ensure rendering
+    setTimeout(checkReveals, 100);
+
     return () => window.removeEventListener('scroll', handleGlobalScroll);
-  }, []);
+  }, [checkReveals]);
+
+  // Re-run reveals when view state or active view changes to ensure content appears
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      checkReveals();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [viewState, activeView, checkReveals]);
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -365,11 +382,7 @@ export default function App() {
       if (mainEl) {
         mainEl.style.opacity = '1';
         setTimeout(() => {
-          const reveals = document.querySelectorAll('.reveal');
-          reveals.forEach(el => {
-            const rect = el.getBoundingClientRect();
-            if (rect.top < window.innerHeight * 0.95) el.classList.add('active');
-          });
+          checkReveals();
         }, 300);
       }
     }, 400);
@@ -410,6 +423,8 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white transition-colors duration-[0.8s]">
       <PaperFilter />
+      <PenToolBackground theme={theme} />
+      
       <div className="fixed top-0 left-0 w-full h-[3px] z-[1200] bg-gray-100 dark:bg-white/5">
         <div className="h-full bg-orange-500 transition-all duration-300" style={{ width: `${globalScroll}%` }} />
       </div>
@@ -444,8 +459,8 @@ export default function App() {
         <main className="flex-1">
           {activeView === 'home' && (
             <div className="home-view">
-              {/* Increased padding-top to prevent header overlapping with hero content on shorter screens */}
-              <section id="home" className="relative flex flex-col items-center justify-center min-h-screen pt-28 pb-2 md:pt-80 md:pb-20">
+              {/* Padding adjusted: reduced pb from 12 to 8 */}
+              <section id="home" className="relative flex flex-col items-center justify-center min-h-screen pt-28 pb-8 md:pt-80 md:pb-20">
                 <div className="container mx-auto reveal active flex flex-col items-center justify-center">
                   <div className="flex flex-col items-center justify-center text-center relative z-10 w-full">
                       
@@ -473,7 +488,7 @@ export default function App() {
                         
                         {/* 1. graphic design is my passion (Top Left) */}
                         <div className="absolute -top-16 -left-4 md:-top-24 md:-left-40 transform -rotate-6 pointer-events-none z-10 w-32 md:w-auto">
-                           <span className="font-handwriting text-[#8b5cf6] text-lg md:text-3xl whitespace-nowrap leading-tight block">graphic design<br/>is my passion</span>
+                           <span className="font-handwriting text-[#8b5cf6] doodle-text text-lg md:text-3xl whitespace-nowrap leading-tight block">graphic design<br/>is my passion</span>
                            <svg className="w-8 h-8 md:w-16 md:h-16 text-[#8b5cf6] absolute top-full left-1/2 -translate-x-1/2 md:translate-x-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2">
                              <path d="M20,10 Q50,50 80,40" />
                              <path d="M80,40 L65,35 M80,40 L70,55" />
@@ -482,7 +497,7 @@ export default function App() {
 
                         {/* InDesign (Far Left) */}
                         <div className="absolute top-8 -left-16 md:top-0 md:-left-64 transform -rotate-12 pointer-events-none">
-                            <span className="font-handwriting text-[#8b5cf6] text-lg md:text-3xl whitespace-nowrap">InDesign</span>
+                            <span className="font-handwriting text-[#8b5cf6] doodle-text text-lg md:text-3xl whitespace-nowrap">InDesign</span>
                             {/* Star doodle */}
                             <svg className="w-4 h-4 md:w-8 md:h-8 text-[#8b5cf6] absolute -top-4 -left-4 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
                         </div>
@@ -503,5 +518,189 @@ export default function App() {
 
                         {/* Branding (Top Right) */}
                         <div className="absolute -top-12 -right-4 md:-top-28 md:-right-24 transform rotate-6 pointer-events-none">
-                           <span className="font-handwriting text-[#8b5cf6] text-xl md:text-5xl whitespace-nowrap">branding</span>
-                           <svg className="w-12 h-6 md:w-24 md:h-12 text-[#8b5cf6] absolute top-full left-0 opacity-80" viewBox="0 0 100 50" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10,10 Q50
+                           <span className="font-handwriting text-[#8b5cf6] doodle-text text-xl md:text-5xl whitespace-nowrap">branding</span>
+                           <svg className="w-12 h-6 md:w-24 md:h-12 text-[#8b5cf6] absolute top-full left-0 opacity-80" viewBox="0 0 100 50" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10,10 Q50,40 90,10" /></svg>
+                        </div>
+
+                        {/* Figma (Top Right Center) */}
+                        <div className="absolute -top-8 right-1/4 md:-top-16 md:right-[20%] transform -rotate-3 pointer-events-none">
+                            <span className="font-handwriting text-[#8b5cf6] doodle-text text-sm md:text-2xl whitespace-nowrap">Figma</span>
+                            {/* Cursor arrow */}
+                             <svg className="w-3 h-3 md:w-6 md:h-6 text-[#8b5cf6] absolute top-full -right-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
+                        </div>
+
+                        {/* Procreate (Far Right) */}
+                        <div className="absolute top-0 -right-20 md:top-4 md:-right-64 transform rotate-6 pointer-events-none flex flex-col items-center">
+                             {/* Dashed Circle with Smiley */}
+                             <div className="relative mb-2">
+                                <svg className="w-10 h-10 md:w-16 md:h-16 text-[#8b5cf6]" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="8 6">
+                                    <circle cx="50" cy="50" r="45" />
+                                </svg>
+                                <div className="absolute inset-0 flex items-center justify-center text-[#8b5cf6]">
+                                    <Smile size={24} className="md:w-10 md:h-10" />
+                                </div>
+                             </div>
+                            <span className="font-handwriting text-[#8b5cf6] doodle-text text-sm md:text-2xl whitespace-nowrap -rotate-12">Procreate</span>
+                        </div>
+
+                        {/* Typography (Bottom Left) */}
+                        <div className="absolute -bottom-12 -left-2 md:-bottom-24 md:-left-20 transform rotate-3 pointer-events-none">
+                            <span className="font-handwriting text-[#8b5cf6] doodle-text text-xl md:text-5xl whitespace-nowrap">typography</span>
+                        </div>
+
+                        {/* Photoshop (Bottom Left Center) */}
+                        <div className="absolute -bottom-16 left-[15%] md:-bottom-28 md:left-[20%] transform -rotate-2 pointer-events-none text-center">
+                            <svg className="w-4 h-8 md:w-6 md:h-12 text-[#8b5cf6] mx-auto mb-1" viewBox="0 0 20 50" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M10,0 L10,40 M5,35 L10,40 L15,35" />
+                            </svg>
+                            <span className="font-handwriting text-[#8b5cf6] doodle-text text-lg md:text-3xl whitespace-nowrap">Photoshop</span>
+                        </div>
+
+                        {/* Illustrator (Bottom Right Center) - Fixed Overlap */}
+                        <div className="absolute -bottom-14 right-[20%] md:-bottom-24 md:right-[25%] transform rotate-2 pointer-events-none">
+                            <span className="font-handwriting text-[#8b5cf6] doodle-text text-lg md:text-3xl whitespace-nowrap">Illustrator</span>
+                            <svg className="w-12 h-6 md:w-24 md:h-12 text-[#8b5cf6] absolute top-[85%] left-0" viewBox="0 0 100 30" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M5,5 Q50,25 95,5" />
+                            </svg>
+                        </div>
+
+                         {/* Illustration (Bottom Right) */}
+                        <div className="absolute -bottom-10 -right-4 md:-bottom-20 md:-right-20 transform -rotate-3 pointer-events-none">
+                           <span className="font-handwriting text-[#8b5cf6] doodle-text text-xl md:text-5xl whitespace-nowrap">illustration</span>
+                        </div>
+
+                      </div>
+
+                  </div>
+                  <div className="w-full flex justify-start mt-32 md:mt-56 px-4">
+                    <p className="text-left text-black dark:text-white text-2xl md:text-5xl lg:text-6xl font-light leading-[1.1] dzinr-text">
+                      I see design as a way of thinking. Each project is a balance of intent and exploration. I’m interested in how visuals communicate, evoke emotion and create understanding.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              {/* Reduced padding in Works section */}
+              <section id="works" className="bg-white dark:bg-black pt-10 md:pt-20 pb-24 md:pb-48">
+                <div className="container mx-auto px-6 md:px-12 lg:px-24">
+                  <div className="flex flex-col mb-12 md:mb-20 reveal">
+                      <h2 className="text-6xl sm:text-8xl md:text-[10vw] font-black uppercase tracking-tighter leading-[0.9] dzinr-text text-black dark:text-white">
+                        MY WORK.
+                      </h2>
+                  </div>
+
+                  <div className="flex flex-col mb-12 reveal border-t border-black/5 dark:border-white/5">
+                      {CATEGORIES.map((cat, i) => (
+                          <div 
+                              key={cat}
+                              id={`category-${cat}`}
+                              className="group relative border-b border-black/5 dark:border-white/5 cursor-pointer"
+                              onMouseEnter={() => playTick()}
+                              onClick={() => { setActiveCategory(cat); handleNavigate('category'); }}
+                          >
+                              <div className="relative flex items-center justify-between py-10 md:py-20 px-6 md:px-12 transition-all group-hover:bg-gray-50 dark:group-hover:bg-white/[0.02]">
+                                  <div className="flex items-center space-x-6 md:space-x-12">
+                                      <span className="text-sm md:text-lg font-black text-black/20 dark:text-white/20 work-item-text transition-all duration-300">0{i + 1}</span>
+                                      {/* Relaxed kerning here for better readability */}
+                                      <h3 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase tracking-tight work-item-text">
+                                          {cat}
+                                      </h3>
+                                  </div>
+                                  <ArrowUpRight size={32} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </div>
+                          </div>
+                      ))}
+                  </div>
+                </div>
+              </section>
+            </div>
+          )}
+
+          {activeView === 'category' && (
+            <CategoryPage 
+              category={activeCategory} 
+              onBack={() => handleNavigate('home', `category-${activeCategory}`)} 
+              onProjectClick={handleProjectClick}
+            />
+          )}
+
+          {activeView === 'about' && (
+            <AboutPage onBack={() => handleNavigate('home')} />
+          )}
+
+          {activeView === 'resume' && (
+            <ResumePage onBack={() => handleNavigate('home')} />
+          )}
+        </main>
+
+        <footer id="contact" className="bg-white dark:bg-black pt-32 pb-24 border-t border-black/5 dark:border-white/5">
+          <div className="container mx-auto px-6 md:px-12 lg:px-16 reveal">
+            <div className="mb-12">
+              <p className="text-[13px] font-normal tracking-[0.1em] text-gray-400 leading-relaxed max-w-lg">
+                Always open for collaborations, projects, or visual storytelling conversations.
+              </p>
+            </div>
+            <div className="flex flex-col space-y-8 pt-10 border-t border-black/5 dark:border-white/5">
+              <a 
+                href="mailto:maansidhamani@gmail.com" 
+                className="group flex items-center space-x-6 w-fit"
+              >
+                <Mail size={18} className="text-black dark:text-white" />
+                <h3 className="text-xl md:text-2xl font-normal tracking-tight text-black dark:text-white group-hover:text-orange-500 transition-colors">
+                  MaansiDhamani@gmail.com
+                </h3>
+              </a>
+            </div>
+          </div>
+        </footer>
+
+        <ProjectModal 
+          project={selectedProject} 
+          isOpen={isModalOpen} 
+          onClose={handleCloseProject} 
+          onScrollTick={playTick}
+          onNavigate={handleNavigate}
+        />
+      </div>
+
+      <style>{`
+        @keyframes music-bar {
+          0%, 100% { height: 4px; }
+          50% { height: 16px; }
+        }
+        @keyframes gallery-marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-gallery-marquee {
+          animation: gallery-marquee 25s linear infinite;
+        }
+        
+        .work-item-text, .doodle-text {
+          -webkit-text-fill-color: transparent;
+          -webkit-text-stroke: 1px currentColor;
+          
+          /* Gradient: transparent at top (hover state), solid currentColor at bottom (default state) */
+          background-image: linear-gradient(to bottom, transparent 50%, currentColor 50%);
+          background-size: 100% 200%;
+          background-position: 0% 100%;
+          
+          -webkit-background-clip: text;
+          background-clip: text;
+          
+          transition: background-position 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+          pointer-events: auto;
+        }
+
+        .group:hover .work-item-text,
+        .doodle-text:hover {
+          background-position: 0% 0%;
+        }
+
+        .doodle-text {
+            cursor: default;
+        }
+      `}</style>
+    </div>
+  );
+}

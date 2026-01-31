@@ -29,7 +29,8 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category, onBack, onProject
                 <span>Back</span>
              </button>
           </div>
-          <h1 className="text-[12vw] md:text-[8vw] font-black uppercase tracking-tighter text-black dark:text-white dzinr-text leading-none break-words max-w-6xl">
+          {/* Relaxed tracking here as well */}
+          <h1 className="text-[12vw] md:text-[8vw] font-black uppercase tracking-tight text-black dark:text-white leading-none break-words max-w-6xl">
              {category}
           </h1>
           <p className="mt-8 text-lg md:text-xl text-gray-400 max-w-xl leading-relaxed">

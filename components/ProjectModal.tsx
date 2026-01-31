@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState } from 'react';
 import { Project } from '../types';
 import { X, ArrowRight, BookOpen, ArrowDown, ArrowLeft, ArrowUpRight, ArrowUp } from 'lucide-react';
@@ -7,12 +8,12 @@ interface ProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
   onScrollTick?: () => void;
+  onNavigate: (view: 'home' | 'about' | 'resume' | 'category', targetId?: string) => void;
 }
 
-const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, onScrollTick }) => {
+const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, onScrollTick, onNavigate }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [showHeaderTitle, setShowHeaderTitle] = useState(false);
   const lastScrollTopRef = useRef(0);
   const scrollAccumulatorRef = useRef(0);
   const SCROLL_THRESHOLD = 300; 
@@ -63,7 +64,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
         const totalHeight = scrollHeight - clientHeight;
         const progress = totalHeight > 0 ? (scrollTop / totalHeight) * 100 : 0;
         setScrollProgress(progress);
-        setShowHeaderTitle(scrollTop > 400);
 
         if (onScrollTick) {
           const delta = Math.abs(scrollTop - lastScrollTopRef.current);
@@ -105,17 +105,40 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
     }
   };
 
+  const scrollToTop = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  const handleFooterLinkClick = (link: string) => {
+    onClose();
+    // Allow a slight delay for modal closing animation before transitioning view
+    setTimeout(() => {
+      if (link === 'Work') {
+        onNavigate('home', 'works');
+      } else if (link === 'About') {
+        onNavigate('about');
+      } else if (link === 'Resume') {
+        onNavigate('resume');
+      }
+    }, 300);
+  };
+
   if (!project) return null;
 
   return (
     <div 
-      className={`fixed inset-0 z-[600] transition-opacity duration-500 ${
+      className={`fixed inset-0 z-[2000] transition-opacity duration-500 ${
         isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       }`}
     >
       <div className="absolute inset-0 bg-black/98" onClick={onClose} />
       
-      <div className="fixed top-0 left-0 w-full h-[2px] z-[650] bg-gray-200/10">
+      <div className="fixed top-0 left-0 w-full h-[2px] z-[2050] bg-gray-200/10">
         <div 
           className="h-full bg-black dark:bg-white transition-all duration-75 ease-out" 
           style={{ width: `${scrollProgress}%` }}
@@ -132,8 +155,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
           overscrollBehavior: 'contain'
         }}
       >
-        {/* Header */}
-        <div className="sticky top-0 left-0 w-full z-[610] p-4 md:p-6 flex justify-between items-center bg-white/95 dark:bg-[#050505]/95 backdrop-blur-xl border-b border-black/5 dark:border-white/5">
+        {/* Header - Fixed to ensure it stays on top */}
+        <div className="sticky top-0 left-0 w-full z-[2010] p-4 md:p-6 flex justify-between items-center bg-white/95 dark:bg-[#050505]/95 backdrop-blur-xl border-b border-black/5 dark:border-white/5">
           <div className="flex items-center space-x-4">
              <button 
                 onClick={onClose}
@@ -141,13 +164,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
              >
                 <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
              </button>
-             
-             <div className="flex items-center space-x-3 pl-4 border-l border-black/10 dark:border-white/10">
-                <div className={`transition-all duration-500 flex flex-col ${showHeaderTitle ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 pointer-events-none'}`}>
-                  <span className="text-[9px] font-black uppercase tracking-[0.3em] text-gray-400">Viewing Project</span>
-                  <span className="text-xs font-black uppercase tracking-tight text-black dark:text-white">{project.title}</span>
-                </div>
-             </div>
           </div>
         </div>
 
@@ -163,8 +179,9 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
         <div className="container mx-auto px-6 md:px-12 lg:px-24">
           <section className="min-h-fit flex flex-col justify-center py-24 lg:py-32">
             <div className="grid lg:grid-cols-12 gap-12 lg:gap-24 items-start">
-              <div className="lg:col-span-8 space-y-12">
-                <h1 className="text-5xl md:text-7xl lg:text-[9vw] font-black uppercase leading-[0.85] tracking-tighter text-black dark:text-white dzinr-text">
+              <div className="lg:col-span-8 space-y-12 relative z-10">
+                {/* Adjusted typography size and kerning to prevent overlap */}
+                <h1 className="text-5xl md:text-7xl lg:text-7xl xl:text-8xl font-black uppercase leading-[0.9] tracking-tight text-black dark:text-white break-words">
                   {project.title}
                 </h1>
                 <div className="space-y-10 max-w-4xl">
@@ -181,7 +198,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
                   </div>
                 </div>
               </div>
-              <div className="hidden lg:block lg:col-span-4 lg:sticky lg:top-40 space-y-10 h-fit pb-12">
+              <div className="hidden lg:block lg:col-span-4 lg:sticky lg:top-40 space-y-10 h-fit pb-12 z-0">
                  <div className="grid grid-cols-2 gap-8 border-t border-black/10 dark:border-white/10 pt-12">
                     <div className="space-y-1">
                       <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Year</p>
@@ -198,7 +215,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
         </div>
 
         {/* Images */}
-        <section id="project-image-sequence" className="space-y-0">
+        <section id="project-image-sequence" className="space-y-0 px-4 md:px-12">
            {project.images.map((img, idx) => (
               <div 
                 key={idx} 
@@ -227,7 +244,11 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
               <div className="flex flex-col sm:flex-row gap-24 lg:gap-32 w-full lg:w-auto pt-10 lg:pt-4">
                  <div className="flex flex-col space-y-6">
                     {['Work', 'About', 'Resume'].map(link => (
-                       <button key={link} className="text-left text-[14px] font-black uppercase tracking-[0.3em] text-white hover:text-gray-400 transition-colors w-fit leading-none">
+                       <button 
+                        key={link} 
+                        onClick={() => handleFooterLinkClick(link)}
+                        className="text-left text-[14px] font-black uppercase tracking-[0.3em] text-white hover:text-gray-400 transition-colors w-fit leading-none"
+                       >
                           {link}
                        </button>
                     ))}
@@ -248,10 +269,10 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
            </div>
         </section>
 
-        {/* Footer Navigation - Simplified to only show the arrow button */}
+        {/* Footer Navigation */}
         <div className="bg-white dark:bg-[#050505] container mx-auto px-6 md:px-12 lg:px-24 pt-32 pb-48 border-t border-black/5 dark:border-white/5 flex flex-col items-center justify-center">
           <button 
-             onClick={onClose}
+             onClick={scrollToTop}
              className="group relative w-20 h-20 md:w-24 md:h-24 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center transition-all duration-700 hover:scale-110 active:scale-95 shadow-2xl overflow-hidden"
           >
              <ArrowUp size={32} className="transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-1" />

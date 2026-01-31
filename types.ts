@@ -6,7 +6,7 @@ export enum ViewType {
   GALLERY = 'gallery'
 }
 
-export type Category = 'All' | 'Packaging Design' | 'Branding' | 'Magazine design' | 'Book Design';
+export type Category = 'All' | 'Packaging Design' | 'Branding' | 'Publication Design';
 
 export interface Project {
   id: string;

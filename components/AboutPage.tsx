@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { ArrowUpRight, ArrowLeft } from 'lucide-react';
 
@@ -11,8 +10,8 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Updated profile image with direct link format based on user request
-  const profileImage = "https://lh3.googleusercontent.com/d/1NTKhCkoYLFzIhPaomEDnH-WCMc6IPpFL";
+  // Updated profile image with reliable Google Drive thumbnail API
+  const profileImage = "https://drive.google.com/thumbnail?id=1NTKhCkoYLFzIhPaomEDnH-WCMc6IPpFL&sz=w1000";
   const fallbackImage = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop";
 
   return (
@@ -25,7 +24,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
             <span className="text-[11px] font-bold uppercase tracking-[0.5em] text-gray-500 block mb-1">
               A LITTLE
             </span>
-            <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter dzinr-text leading-[0.8] transition-colors duration-500 hover:text-orange-400 cursor-default">
+            <h2 className="text-5xl md:text-7xl font-black uppercase tracking-tighter dzinr-text leading-[0.8] text-orange-500 cursor-default">
               ABOUT ME?
             </h2>
           </div>
@@ -102,7 +101,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
             <div className="w-14 h-14 border border-black/10 dark:border-white/10 rounded-full flex items-center justify-center transition-all duration-500 group-hover:bg-black dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black group-hover:border-black dark:group-hover:border-white">
               <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.6em] text-gray-500 group-hover:text-black dark:group-hover:text-white transition-colors">Return to Projects</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.6em] text-gray-500 group-hover:text-black dark:group-hover:text-white transition-colors">Back to Home</span>
           </button>
         </div>
 
