@@ -58,7 +58,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category, onBack, onProject
                 </div>
                 <div className="space-y-4">
                    <div className="flex items-start justify-between">
-                      <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-black dark:text-white leading-none">
+                      <h3 className="text-3xl md:text-4xl font-black uppercase tracking-tighter text-black dark:text-white leading-[0.9] whitespace-pre-wrap">
                          {project.title}
                       </h3>
                       <span className="text-xs font-black uppercase tracking-widest text-gray-400 mt-1">0{idx+1}</span>

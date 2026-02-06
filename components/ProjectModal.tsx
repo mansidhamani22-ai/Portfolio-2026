@@ -115,6 +115,11 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
   };
 
   const handleFooterLinkClick = (link: string) => {
+    if (link === 'Resume') {
+       window.open("https://drive.google.com/file/d/1FqMPq5nQ_NrNJIOLOGVmrLKhMvauw3yE/view?usp=drive_link", '_blank');
+       return;
+    }
+    
     onClose();
     // Allow a slight delay for modal closing animation before transitioning view
     setTimeout(() => {
@@ -122,8 +127,6 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
         onNavigate('home', 'works');
       } else if (link === 'About') {
         onNavigate('about');
-      } else if (link === 'Resume') {
-        onNavigate('resume');
       }
     }, 300);
   };
@@ -167,21 +170,14 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
           </div>
         </div>
 
-        {/* Hero */}
-        <div className="w-full h-screen overflow-hidden">
-          <img 
-            src={project.thumbnail} 
-            alt={project.title} 
-            className="w-full h-full object-cover scale-105"
-          />
-        </div>
+        {/* Hero Image Removed */}
 
         <div className="container mx-auto px-6 md:px-12 lg:px-24">
           <section className="min-h-fit flex flex-col justify-center py-24 lg:py-32">
             <div className="grid lg:grid-cols-12 gap-12 lg:gap-24 items-start">
               <div className="lg:col-span-8 space-y-12 relative z-10">
                 {/* Adjusted typography size and kerning to prevent overlap */}
-                <h1 className="text-5xl md:text-7xl lg:text-7xl xl:text-8xl font-black uppercase leading-[0.9] tracking-tight text-black dark:text-white break-words">
+                <h1 className="text-5xl md:text-7xl lg:text-7xl xl:text-8xl font-black uppercase leading-[0.9] tracking-tight text-black dark:text-white break-words whitespace-pre-wrap">
                   {project.title}
                 </h1>
                 <div className="space-y-10 max-w-4xl">

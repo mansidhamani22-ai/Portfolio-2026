@@ -1,15 +1,18 @@
 
-import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Header from './components/Header';
 import ProjectModal from './components/ProjectModal';
 import AboutPage from './components/AboutPage';
 import ResumePage from './components/ResumePage';
 import CategoryPage from './components/CategoryPage';
+import WorkGalleryPage from './components/WorkGalleryPage';
+import RubikCubeTransition from './components/RubikCubeTransition';
 import PenToolBackground from './components/PenToolBackground';
+import Assistant from './components/Assistant';
 import { PROJECTS } from './constants';
 import { Category, Project } from './types';
 import { 
-  ArrowDown, ArrowRight, ArrowUp, Info, Loader2, SkipForward, SkipBack, Moon, Sun, Mail, ArrowUpRight, Smile
+  ArrowUp, Info, Loader2, SkipForward, SkipBack, Moon, Sun, Mail, ArrowUpRight, ArrowRight
 } from 'lucide-react';
 
 const CATEGORIES: Category[] = ['Packaging Design', 'Branding', 'Publication Design'];
@@ -32,27 +35,6 @@ const tickAudio = new Audio(TICK_SOUND_URL);
 tickAudio.volume = 0.2; 
 tickAudio.preload = 'auto';
 
-const GALLERY_IMAGES = [
-  'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1512331283953-19967202267a?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=600&auto=format&fit=crop',
-  'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=600&auto=format&fit=crop'
-];
-
-const PORTFOLIO_LETTERS = [
-  { char: 'P', rotate: '-3deg', y: '4px' },
-  { char: 'O', rotate: '2deg', y: '-4px' },
-  { char: 'R', rotate: '-2deg', y: '0px' },
-  { char: 'T', rotate: '4deg', y: '4px' },
-  { char: 'F', rotate: '-3deg', y: '-2px' },
-  { char: 'O', rotate: '2deg', y: '3px' },
-  { char: 'L', rotate: '-4deg', y: '0px' },
-  { char: 'I', rotate: '3deg', y: '-4px' },
-  { char: 'O', rotate: '-2deg', y: '2px' },
-];
-
 const PaperFilter = () => (
   <svg className="absolute w-0 h-0 pointer-events-none">
     <defs>
@@ -63,6 +45,166 @@ const PaperFilter = () => (
     </defs>
   </svg>
 );
+
+/* -------------------------------------------------------------------------- */
+/*                                3D CARD COMPONENT                           */
+/* -------------------------------------------------------------------------- */
+
+interface CategoryCardProps {
+  category: Category;
+  customTitle?: string;
+  image: string;
+  index: number;
+  onClick: () => void;
+  onHover: () => void;
+}
+
+const CategoryCard: React.FC<CategoryCardProps> = ({ category, customTitle, image, index, onClick, onHover }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [rotation, setRotation] = useState({ x: 0, y: 0 });
+  const [glossPos, setGlossPos] = useState({ x: 50, y: 50 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Normalize coordinates (-1 to 1) for rotation calculation
+    const normX = (x / rect.width) * 2 - 1;
+    const normY = (y / rect.height) * 2 - 1;
+    
+    // Max rotation in degrees
+    const MAX_ROTATION = 14;
+    
+    setRotation({ 
+      x: -normY * MAX_ROTATION, 
+      y: normX * MAX_ROTATION 
+    });
+    
+    setGlossPos({ 
+      x: (x / rect.width) * 100, 
+      y: (y / rect.height) * 100 
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setRotation({ x: 0, y: 0 });
+    setIsHovered(false);
+  };
+
+  return (
+    <div 
+      className="relative w-full aspect-square perspective-[1200px] group cursor-pointer z-10"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => { setIsHovered(true); onHover(); }}
+      onClick={onClick}
+    >
+      <div 
+        ref={cardRef}
+        className="w-full h-full relative transition-all duration-200 ease-out transform-style-3d rounded-[1.5rem]"
+        style={{
+          transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) scale(${isHovered ? 1.05 : 1})`,
+        }}
+      >
+        {/* Shadow Layer - Detached from card for depth */}
+        <div 
+           className="absolute inset-4 bg-black/50 rounded-[1.5rem] blur-2xl transition-all duration-300 opacity-60 group-hover:opacity-80"
+           style={{ transform: 'translateZ(-50px) scale(0.9)' }}
+        />
+
+        {/* Main Card Body */}
+        <div className="absolute inset-0 bg-[#0a0a0a] border border-white/10 rounded-[1.5rem] overflow-hidden transform-style-3d shadow-2xl">
+            
+            {/* Background Image Layer */}
+            <div className="absolute inset-0 z-0">
+               <img 
+                 src={image} 
+                 alt={customTitle || category} 
+                 className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-110 opacity-70 group-hover:opacity-100 grayscale group-hover:grayscale-0"
+               />
+               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 group-hover:opacity-60 transition-opacity duration-500"></div>
+            </div>
+
+            {/* Dynamic Gloss/Sheen */}
+            <div 
+                className="absolute inset-0 mix-blend-overlay transition-opacity duration-300 pointer-events-none z-10"
+                style={{
+                    opacity: isHovered ? 0.4 : 0,
+                    background: `radial-gradient(circle at ${glossPos.x}% ${glossPos.y}%, rgba(255,255,255,0.7) 0%, transparent 60%)`
+                }}
+            />
+
+            {/* 3D Floating Content */}
+            <div className="absolute inset-0 p-8 md:p-10 flex flex-col justify-between transform-style-3d z-20">
+                {/* Header */}
+                <div 
+                    className="flex justify-between items-start"
+                    style={{ transform: 'translateZ(40px)' }}
+                >
+                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 border border-white/20 px-3 py-1.5 rounded-full backdrop-blur-md bg-black/40 shadow-lg">
+                        0{index + 1}
+                     </span>
+                     <div className={`w-10 h-10 rounded-full bg-white text-black flex items-center justify-center transition-all duration-500 shadow-lg ${isHovered ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-50 rotate-45'}`}>
+                        <ArrowUpRight size={18} />
+                     </div>
+                </div>
+
+                {/* Bottom Content */}
+                <div 
+                    className="space-y-4"
+                    style={{ transform: 'translateZ(70px)' }}
+                >
+                    <h3 className="text-3xl lg:text-5xl font-black uppercase tracking-tighter text-white leading-[0.9] drop-shadow-2xl">
+                        {(customTitle || category).split(' ').map((word, i) => (
+                           <span key={i} className="block">{word}</span>
+                        ))}
+                    </h3>
+                    
+                    {/* Progress Bar Line */}
+                    <div className="h-0.5 w-full bg-white/20 mt-6 overflow-hidden rounded-full backdrop-blur-sm">
+                        <div 
+                           className="h-full bg-orange-500 w-full transition-transform duration-700 ease-out origin-left"
+                           style={{ transform: isHovered ? 'scaleX(1)' : 'scaleX(0)' }}
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ViewAllCard: React.FC<{ onClick: () => void, onHover: () => void }> = ({ onClick, onHover }) => {
+    return (
+        <div 
+            className="w-full aspect-square relative group cursor-pointer perspective-[1200px]"
+            onClick={onClick}
+            onMouseEnter={onHover}
+        >
+            <div className="w-full h-full relative transition-all duration-300 ease-out transform-style-3d rounded-[1.5rem] bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 group-hover:scale-105 group-hover:-translate-y-2 shadow-2xl overflow-hidden flex flex-col items-center justify-center gap-8">
+                 
+                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                 <div className="relative z-10 w-28 h-28 md:w-36 md:h-36 rounded-full border-2 border-black dark:border-white flex items-center justify-center transition-all duration-500 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black">
+                     <ArrowRight size={56} className="transition-transform duration-500 group-hover:translate-x-1" />
+                 </div>
+                 
+                 <span className="relative z-10 text-sm md:text-xl font-black uppercase tracking-[0.2em] text-black dark:text-white group-hover:tracking-[0.3em] transition-all duration-500">
+                    View All Work
+                 </span>
+            </div>
+        </div>
+    );
+};
+
+
+/* -------------------------------------------------------------------------- */
+/*                                MAIN APP                                    */
+/* -------------------------------------------------------------------------- */
 
 const Controls: React.FC<{ 
   theme: 'light' | 'dark', 
@@ -205,13 +347,230 @@ const RollingDigit: React.FC<{ value: number, isAtEnd?: boolean, duration?: stri
   );
 };
 
+const MetallicHello = () => {
+  return (
+    <div className="hello-scene">
+      <div className="hello-spinner">
+        {[...Array(16)].map((_, i) => (
+          <span 
+            key={i} 
+            className="hello-text" 
+            style={{ 
+              transform: `translate(-50%, -50%) translateZ(-${i * 1.5}px)`,
+              zIndex: 100 - i
+            } as React.CSSProperties}
+          >
+            Hello
+          </span>
+        ))}
+      </div>
+      <style>{`
+        .hello-scene {
+          perspective: 1000px;
+          width: 100%;
+          max-width: 800px;
+          height: 400px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .hello-spinner {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          transform-style: preserve-3d;
+          animation: rotateHello 5s infinite linear;
+        }
+        .hello-text {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          font-family: 'Pinyon Script', cursive;
+          font-size: 280px;
+          line-height: 1;
+          white-space: nowrap;
+          user-select: none;
+          padding: 20px;
+        }
+        
+        @media (max-width: 768px) {
+          .hello-text {
+            font-size: 100px;
+          }
+          .hello-scene {
+            height: 250px;
+          }
+        }
+
+        .hello-text:nth-child(1) {
+          background: linear-gradient(to bottom, #ffffff 0%, #dfdfdf 25%, #8c8c8c 50%, #dfdfdf 75%, #ffffff 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          -webkit-text-stroke: 1px rgba(255,255,255,0.9);
+          filter: drop-shadow(0 0 15px rgba(255,255,255,0.7));
+        }
+        .hello-text:last-child {
+          background: linear-gradient(to bottom, #ffffff 0%, #dfdfdf 25%, #8c8c8c 50%, #dfdfdf 75%, #ffffff 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          -webkit-text-stroke: 1px rgba(255,255,255,0.9);
+        }
+        .hello-text:not(:nth-child(1)):not(:last-child) {
+           color: #555;
+           -webkit-text-stroke: 2px #4a4a4a;
+           filter: contrast(1.2);
+        }
+        @keyframes rotateHello {
+          0% { transform: rotateY(0deg) rotateX(5deg); }
+          100% { transform: rotateY(360deg) rotateX(5deg); }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+const IDCard = () => {
+  return (
+    <div className="absolute inset-0 z-10 flex justify-center pt-0 pointer-events-none perspective-[1200px]">
+      <div className="origin-top animate-[dropSwing_2.5s_ease-out_forwards] flex flex-col items-center">
+        
+        {/* Strap - Black - Responsive Height */}
+        <div className="w-[42px] h-[15vh] md:h-[35vh] bg-[#050505] relative z-20 flex flex-col items-center shadow-2xl">
+             <div className="absolute inset-0 opacity-[0.2] bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] pointer-events-none"></div>
+             <div className="absolute inset-y-0 left-0 w-[1px] bg-white/20"></div>
+             <div className="absolute inset-y-0 right-0 w-[1px] bg-white/20"></div>
+        </div>
+
+        {/* Connector - Dark Crimp */}
+        <div className="w-[44px] h-8 bg-[#1a1a1a] relative z-21 rounded-sm shadow-md border-t border-white/10 flex items-center justify-center">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#333] shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]"></div>
+        </div>
+
+        {/* Hardware & Card */}
+        <div className="relative z-30 -mt-2 flex flex-col items-center origin-top animate-[pendulum_4s_ease-in-out_infinite_alternate_1s]">
+            
+            {/* Metal Ring */}
+            <div className="w-10 h-8 -mt-2 relative z-20 border-[4px] border-[#555] rounded-b-xl border-t-0 bg-transparent shadow-sm"></div>
+
+            {/* Lobster Clasp */}
+            <div className="relative z-40 -mt-3 drop-shadow-xl scale-90">
+               <svg width="40" height="60" viewBox="0 0 40 60" className="overflow-visible">
+                 <defs>
+                   <linearGradient id="metalDark" x1="0%" y1="0%" x2="100%" y2="0%">
+                     <stop offset="0%" stopColor="#4b5563" />
+                     <stop offset="50%" stopColor="#9ca3af" />
+                     <stop offset="100%" stopColor="#4b5563" />
+                   </linearGradient>
+                 </defs>
+                 <path d="M14 0 h12 v10 h-12 z" fill="url(#metalDark)" />
+                 <path d="M20 10 v10" stroke="#4b5563" strokeWidth="4" />
+                 <path d="M10 20 h20 l2 30 c0 5 -5 10 -12 10 c-7 0 -12 -5 -12 -10 z" fill="none" stroke="url(#metalDark)" strokeWidth="4" />
+               </svg>
+            </div>
+
+            {/* The ID Card */}
+            <div className="relative -mt-[30px] mx-auto z-20">
+                <div className="w-[300px] h-[480px] bg-[#080808] rounded-[20px] shadow-[0_30px_60px_rgba(0,0,0,0.6)] flex flex-col relative overflow-hidden animate-[card3D_8s_ease-in-out_infinite_alternate] transform-style-3d border border-white/10">
+                    
+                    {/* Background Graphic */}
+                    <div className="absolute inset-0 pointer-events-none mix-blend-plus-lighter opacity-60">
+                         <svg width="100%" height="100%" viewBox="0 0 300 480" preserveAspectRatio="none">
+                            <filter id="blur">
+                                <feGaussianBlur stdDeviation="15" />
+                            </filter>
+                            <path d="M-50,120 C50,60 150,180 200,100 S350,120 350,180" fill="none" stroke="white" strokeWidth="30" filter="url(#blur)" opacity="0.3" />
+                            <path d="M-50,280 C50,220 150,340 200,260 S350,280 350,340" fill="none" stroke="white" strokeWidth="30" filter="url(#blur)" opacity="0.25" />
+                            <path d="M-50,440 C50,380 150,500 200,420 S350,440 350,500" fill="none" stroke="white" strokeWidth="30" filter="url(#blur)" opacity="0.3" />
+                         </svg>
+                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
+                    </div>
+
+                    <div className="absolute top-6 left-1/2 -translate-x-1/2 w-14 h-3 bg-[#080808] rounded-full border border-white/10 shadow-inner z-30"></div>
+
+                    <div className="relative z-20 flex flex-col h-full p-8">
+                        {/* Header: Portfolio / 2026 */}
+                        <div className="flex justify-between items-start mt-4 border-b border-white/10 pb-4">
+                           <div>
+                           </div>
+                           <p className="text-[10px] font-mono text-white/50 tracking-widest uppercase">2026</p>
+                        </div>
+
+                        {/* Main Content */}
+                        <div className="flex-1 flex flex-col justify-center">
+                            {/* Name in Typewriter - No Barcode */}
+                            <div className="mb-6 flex items-end justify-between pr-2">
+                                <div>
+                                    <h1 className="text-4xl font-mono font-bold tracking-tighter text-white leading-[0.9] mix-blend-normal">
+                                        Maansi
+                                    </h1>
+                                    <h1 className="text-4xl font-mono font-bold tracking-tighter text-white/50 leading-[0.9]">
+                                        Dhamani
+                                    </h1>
+                                </div>
+                            </div>
+
+                            {/* Interests */}
+                            <div className="space-y-3 w-full">
+                                <p className="text-[9px] font-mono text-orange-500 tracking-widest border-b border-orange-500/20 pb-1 w-fit">Interests</p>
+                                <div className="grid grid-cols-2 gap-x-1 w-full">
+                                    <ul className="text-[10px] font-mono text-white/80 space-y-1.5 leading-tight">
+                                        <li className="flex items-start"><span className="mr-2 opacity-50">•</span>Typography</li>
+                                        <li className="flex items-start"><span className="mr-2 opacity-50">•</span>Branding</li>
+                                        <li className="flex items-start"><span className="mr-2 opacity-50">•</span>Packaging</li>
+                                    </ul>
+                                    <ul className="text-[10px] font-mono text-white/80 space-y-1.5 leading-tight">
+                                        <li className="flex items-start"><span className="mr-2 opacity-50">•</span>Editorial</li>
+                                        <li className="flex items-start"><span className="mr-2 opacity-50">•</span>Illustration</li>
+                                        <li className="flex items-start"><span className="mr-2 opacity-50">•</span>AI Learning</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer: Discipline */}
+                        <div className="border-t border-white/10 pt-6">
+                            <div className="flex justify-between items-end">
+                                <div>
+                                    <p className="text-[9px] font-mono text-white/40 uppercase tracking-widest mb-1">Discipline</p>
+                                    <p className="text-xs font-bold text-white tracking-tight font-mono">Visual Communication Designer</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none z-40"></div>
+                </div>
+            </div>
+        </div>
+      </div>
+      <style>{`
+        @keyframes dropSwing {
+            0% { transform: translateY(-100vh) rotate(5deg); }
+            40% { transform: translateY(10px) rotate(-3deg); }
+            60% { transform: translateY(-5px) rotate(2deg); }
+            80% { transform: translateY(2px) rotate(-1deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+        @keyframes pendulum {
+            0% { transform: rotate(1deg); }
+            100% { transform: rotate(-1deg); }
+        }
+        @keyframes card3D {
+            0% { transform: rotateY(3deg); }
+            100% { transform: rotateY(-3deg); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const [count, setCount] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     let current = 0;
-    // Slower interval (30ms per 1%) = 3 seconds total loading time
     const interval = setInterval(() => {
       current += 1; 
       if (current >= 100) {
@@ -233,45 +592,13 @@ const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
   const isAtEnd = count === 100;
 
   return (
-    <div className={`fixed inset-0 z-[6000] bg-white dark:bg-black flex items-center justify-center transition-opacity duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-      
-      {/* Centered "Portfolio" reveal in elegant script typeface with Outline-to-Fill animation */}
-      <div className={`relative w-full max-w-[95vw] transition-all duration-700 delay-300 transform ${count > 2 && count < 98 ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.98] translate-y-8'}`}>
-        <div className="relative text-black dark:text-white flex justify-center items-center">
-          <div className="relative inline-block">
-              {/* Outline Base - Visible Always */}
-              <h1 
-                className="script select-none text-center leading-[1.15] py-4 px-6 md:px-12 text-transparent"
-                style={{ 
-                    fontSize: 'clamp(3.5rem, 16vw, 12rem)', 
-                    WebkitTextStroke: '1px currentColor' 
-                }}
-              >
-                Portfolio
-              </h1>
-
-              {/* Fill Animation Overlay - Clips from left to right based on loading progress */}
-              <div 
-                className="absolute inset-0 text-black dark:text-white pointer-events-none"
-                style={{ 
-                  clipPath: `inset(0 ${100 - count}% 0 0)`,
-                  transition: 'clip-path 0.1s linear'
-                }}
-              >
-                 <h1 
-                    className="script select-none text-center leading-[1.15] py-4 px-6 md:px-12"
-                    style={{ fontSize: 'clamp(3.5rem, 16vw, 12rem)' }}
-                 >
-                  Portfolio
-                </h1>
-              </div>
-          </div>
-        </div>
+    <div className={`fixed inset-0 z-[6000] bg-[#050505] flex items-center justify-center transition-opacity duration-1000 ${isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`relative transition-all duration-700 delay-300 transform ${count > 2 && count < 98 ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.98] translate-y-8'}`}>
+        <MetallicHello />
       </div>
-
       <div className="fixed bottom-12 left-12 flex items-baseline">
         <div className="flex items-center h-[60px] tabular-nums">
-          <div className="text-[50px] md:text-[70px] font-black text-black dark:text-white leading-none flex items-center">
+          <div className="text-[50px] md:text-[70px] font-black text-white leading-none flex items-center">
             <div className={`transition-all duration-800 overflow-hidden flex items-center ${count >= 100 ? 'w-[0.65em] opacity-100' : 'w-0 opacity-0'}`}>
               <RollingDigit value={d1} isAtEnd={isAtEnd} duration="1000ms" />
             </div>
@@ -282,7 +609,7 @@ const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
               <RollingDigit value={d3} isAtEnd={isAtEnd} duration="400ms" />
             </div>
           </div>
-          <span className="text-[24px] font-black text-black/20 dark:text-white/20 ml-2">%</span>
+          <span className="text-[24px] font-black text-white/20 ml-2">%</span>
         </div>
       </div>
     </div>
@@ -291,13 +618,14 @@ const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
 
 export default function App() {
   const [viewState, setViewState] = useState<'loading' | 'ready'>('loading');
-  const [activeView, setActiveView] = useState<'home' | 'about' | 'resume' | 'category'>('home');
+  const [activeView, setActiveView] = useState<'home' | 'about' | 'resume' | 'category' | 'work-gallery'>('home');
   const [activeCategory, setActiveCategory] = useState<Category>('Packaging Design');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [globalScroll, setGlobalScroll] = useState(0);
   const [rawScrollY, setRawScrollY] = useState(0);
   const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
+  const [isTransitioningWork, setIsTransitioningWork] = useState(false);
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
@@ -314,11 +642,25 @@ export default function App() {
   };
 
   const checkReveals = useCallback(() => {
-    const reveals = document.querySelectorAll('.reveal');
+    // We use a broader selection to ensure all cards are captured
+    const reveals = document.querySelectorAll('.reveal, .reveal-card, .reveal-from-top');
+    const windowHeight = window.innerHeight;
+
     reveals.forEach(el => {
       const rect = el.getBoundingClientRect();
-      if (rect.top < window.innerHeight * 0.95) {
+      
+      // If element top is within the viewport or slightly above, it should be active.
+      // We check if the top is less than 90% of viewport height.
+      // This means as soon as the top 10% of the element enters from bottom, it triggers.
+      if (rect.top < windowHeight * 0.90) {
         el.classList.add('active');
+      } 
+      
+      // Reset animation if element goes completely below the viewport again.
+      // This ensures that if you scroll UP (element goes down and out of view), 
+      // the animation resets so it can play again when you scroll DOWN.
+      else if (rect.top > windowHeight) {
+        el.classList.remove('active');
       }
     });
   }, []);
@@ -330,19 +672,20 @@ export default function App() {
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       const scrolled = docHeight > 0 ? (y / docHeight) * 100 : 0;
       setGlobalScroll(scrolled);
-      checkReveals();
+      
+      // Call checkReveals inside requestAnimationFrame for performance
+      requestAnimationFrame(checkReveals);
     };
     
     window.addEventListener('scroll', handleGlobalScroll);
-    handleGlobalScroll();
+    handleGlobalScroll(); // Check initially
     
-    // Initial reveal check after a small delay to ensure rendering
-    setTimeout(checkReveals, 100);
+    // Fallback check
+    setTimeout(checkReveals, 300);
 
     return () => window.removeEventListener('scroll', handleGlobalScroll);
   }, [checkReveals]);
 
-  // Re-run reveals when view state or active view changes to ensure content appears
   useEffect(() => {
     const timer = setTimeout(() => {
       checkReveals();
@@ -362,7 +705,7 @@ export default function App() {
     setIsModalOpen(true);
   };
 
-  const handleNavigate = (view: 'home' | 'about' | 'resume' | 'category', targetId?: string) => {
+  const handleNavigate = (view: 'home' | 'about' | 'resume' | 'category' | 'work-gallery', targetId?: string) => {
     const mainEl = document.getElementById('page-transition-wrapper');
     if (mainEl) mainEl.style.opacity = '0';
     
@@ -393,7 +736,11 @@ export default function App() {
     setIsModalOpen(false);
     
     setTimeout(() => {
-      if (categoryToLandOn) {
+      if (activeView === 'work-gallery') {
+          // Do nothing, stay on gallery
+      } else if (categoryToLandOn && categoryToLandOn !== 'Packaging Design') {
+        // If we are coming from 'Packaging Design' (Fanta), we want to go home, not to the category page.
+        // For other categories, we go to the category page.
         setActiveCategory(categoryToLandOn);
         handleNavigate('category');
       } else {
@@ -420,6 +767,16 @@ export default function App() {
 
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
+  const initiateWorkTransition = () => {
+    setIsTransitioningWork(true);
+  };
+
+  const completeWorkTransition = () => {
+      setIsTransitioningWork(false);
+      setActiveView('work-gallery');
+      window.scrollTo(0, 0);
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white transition-colors duration-[0.8s]">
       <PaperFilter />
@@ -433,6 +790,9 @@ export default function App() {
         theme={theme} 
         onToggleTheme={toggleTheme} 
       />
+      
+      {/* AI Assistant */}
+      <Assistant onOpenProject={handleProjectClick} />
 
       <button 
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -441,17 +801,23 @@ export default function App() {
         <ArrowUp size={24} />
       </button>
 
+      {/* Special Transition Component */}
+      {isTransitioningWork && (
+          <RubikCubeTransition projects={PROJECTS} onComplete={completeWorkTransition} />
+      )}
+
       {viewState === 'loading' && <Preloader onComplete={() => { unlockAudio(); setViewState('ready'); }} />}
       
       <div 
         id="page-transition-wrapper"
-        className={`view-transition flex flex-col min-h-screen transition-opacity duration-1000 ${viewState === 'ready' ? 'opacity-100' : 'opacity-0'}`}
+        className={`view-transition flex flex-col min-h-screen transition-opacity duration-1000 ${viewState === 'ready' && !isTransitioningWork ? 'opacity-100' : 'opacity-0'}`}
       >
         <Header 
           onContactClick={() => scrollToSection('contact')} 
           theme={theme} 
           onToggleTheme={toggleTheme} 
           onViewChange={handleNavigate} 
+          onWorkClick={initiateWorkTransition}
           currentView={activeView} 
           isFullscreen={false} 
         />
@@ -459,157 +825,103 @@ export default function App() {
         <main className="flex-1">
           {activeView === 'home' && (
             <div className="home-view">
-              {/* Padding adjusted: reduced pb from 12 to 8 */}
-              <section id="home" className="relative flex flex-col items-center justify-center min-h-screen pt-28 pb-8 md:pt-80 md:pb-20">
-                <div className="container mx-auto reveal active flex flex-col items-center justify-center">
-                  <div className="flex flex-col items-center justify-center text-center relative z-10 w-full">
-                      
-                      <div className="relative inline-block my-12 md:my-20">
-                        {/* Main Text: Portfolio - Cutout Style White with Paper Effect */}
-                        <div className="flex items-baseline justify-center space-x-0 md:space-x-1 select-none relative z-20">
-                            {PORTFOLIO_LETTERS.map((item, idx) => (
-                                <span 
-                                    key={idx}
-                                    className="font-sans font-black text-white leading-none tracking-tighter transition-transform hover:scale-110 duration-300"
-                                    style={{
-                                        fontSize: 'clamp(3rem, 13vw, 10rem)',
-                                        transform: `rotate(${item.rotate}) translateY(${item.y})`,
-                                        textShadow: '1px 2px 2px rgba(0,0,0,0.25), 2px 4px 12px rgba(0,0,0,0.15)', // Layered shadow for paper depth
-                                        filter: 'url(#paper-roughness) contrast(1.1)', // Paper edge effect
-                                        WebkitTextStroke: '1px rgba(0,0,0,0.05)' // Subtle outline
-                                    }}
-                                >
-                                    {item.char}
-                                </span>
-                            ))}
-                        </div>
+              <section id="home" className="relative flex items-center min-h-screen pt-20 pb-20 overflow-hidden">
+                  <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
+                    
+                    {/* ID Card Column - Now Visible on Mobile - Fixed Overlap */}
+                    <div className="relative h-[550px] md:h-[60vh] w-full pointer-events-none flex justify-center order-first lg:order-none">
+                       {viewState === 'ready' && (
+                         <div className="scale-[0.8] md:scale-100 origin-top w-full h-full flex justify-center">
+                            <IDCard />
+                         </div>
+                       )}
+                    </div>
 
-                        {/* DOODLES */}
-                        
-                        {/* 1. graphic design is my passion (Top Left) */}
-                        <div className="absolute -top-16 -left-4 md:-top-24 md:-left-40 transform -rotate-6 pointer-events-none z-10 w-32 md:w-auto">
-                           <span className="font-handwriting text-[#8b5cf6] doodle-text text-lg md:text-3xl whitespace-nowrap leading-tight block">graphic design<br/>is my passion</span>
-                           <svg className="w-8 h-8 md:w-16 md:h-16 text-[#8b5cf6] absolute top-full left-1/2 -translate-x-1/2 md:translate-x-0" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2">
-                             <path d="M20,10 Q50,50 80,40" />
-                             <path d="M80,40 L65,35 M80,40 L70,55" />
-                           </svg>
-                        </div>
-
-                        {/* InDesign (Far Left) */}
-                        <div className="absolute top-8 -left-16 md:top-0 md:-left-64 transform -rotate-12 pointer-events-none">
-                            <span className="font-handwriting text-[#8b5cf6] doodle-text text-lg md:text-3xl whitespace-nowrap">InDesign</span>
-                            {/* Star doodle */}
-                            <svg className="w-4 h-4 md:w-8 md:h-8 text-[#8b5cf6] absolute -top-4 -left-4 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                        </div>
-
-                        {/* Star (Bottom Left of Portfolio) */}
-                        <div className="absolute bottom-4 -left-10 md:bottom-8 md:-left-24 text-[#8b5cf6] pointer-events-none">
-                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6 md:w-12 md:h-12 transform rotate-12">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                            </svg>
-                        </div>
-
-                        {/* Spring/Loop Doodle above R & T */}
-                        <div className="absolute -top-10 left-[28%] md:-top-20 md:left-[33%] transform -rotate-12 pointer-events-none">
-                            <svg className="w-10 h-6 md:w-24 md:h-12 text-[#8b5cf6]" viewBox="0 0 100 50" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                                <path d="M5,40 C20,10 30,10 30,40 S55,40 55,10 S80,10 80,40" />
-                            </svg>
-                        </div>
-
-                        {/* Branding (Top Right) */}
-                        <div className="absolute -top-12 -right-4 md:-top-28 md:-right-24 transform rotate-6 pointer-events-none">
-                           <span className="font-handwriting text-[#8b5cf6] doodle-text text-xl md:text-5xl whitespace-nowrap">branding</span>
-                           <svg className="w-12 h-6 md:w-24 md:h-12 text-[#8b5cf6] absolute top-full left-0 opacity-80" viewBox="0 0 100 50" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10,10 Q50,40 90,10" /></svg>
-                        </div>
-
-                        {/* Figma (Top Right Center) */}
-                        <div className="absolute -top-8 right-1/4 md:-top-16 md:right-[20%] transform -rotate-3 pointer-events-none">
-                            <span className="font-handwriting text-[#8b5cf6] doodle-text text-sm md:text-2xl whitespace-nowrap">Figma</span>
-                            {/* Cursor arrow */}
-                             <svg className="w-3 h-3 md:w-6 md:h-6 text-[#8b5cf6] absolute top-full -right-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg>
-                        </div>
-
-                        {/* Procreate (Far Right) */}
-                        <div className="absolute top-0 -right-20 md:top-4 md:-right-64 transform rotate-6 pointer-events-none flex flex-col items-center">
-                             {/* Dashed Circle with Smiley */}
-                             <div className="relative mb-2">
-                                <svg className="w-10 h-10 md:w-16 md:h-16 text-[#8b5cf6]" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="8 6">
-                                    <circle cx="50" cy="50" r="45" />
-                                </svg>
-                                <div className="absolute inset-0 flex items-center justify-center text-[#8b5cf6]">
-                                    <Smile size={24} className="md:w-10 md:h-10" />
-                                </div>
-                             </div>
-                            <span className="font-handwriting text-[#8b5cf6] doodle-text text-sm md:text-2xl whitespace-nowrap -rotate-12">Procreate</span>
-                        </div>
-
-                        {/* Typography (Bottom Left) */}
-                        <div className="absolute -bottom-12 -left-2 md:-bottom-24 md:-left-20 transform rotate-3 pointer-events-none">
-                            <span className="font-handwriting text-[#8b5cf6] doodle-text text-xl md:text-5xl whitespace-nowrap">typography</span>
-                        </div>
-
-                        {/* Photoshop (Bottom Left Center) */}
-                        <div className="absolute -bottom-16 left-[15%] md:-bottom-28 md:left-[20%] transform -rotate-2 pointer-events-none text-center">
-                            <svg className="w-4 h-8 md:w-6 md:h-12 text-[#8b5cf6] mx-auto mb-1" viewBox="0 0 20 50" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M10,0 L10,40 M5,35 L10,40 L15,35" />
-                            </svg>
-                            <span className="font-handwriting text-[#8b5cf6] doodle-text text-lg md:text-3xl whitespace-nowrap">Photoshop</span>
-                        </div>
-
-                        {/* Illustrator (Bottom Right Center) - Fixed Overlap */}
-                        <div className="absolute -bottom-14 right-[20%] md:-bottom-24 md:right-[25%] transform rotate-2 pointer-events-none">
-                            <span className="font-handwriting text-[#8b5cf6] doodle-text text-lg md:text-3xl whitespace-nowrap">Illustrator</span>
-                            <svg className="w-12 h-6 md:w-24 md:h-12 text-[#8b5cf6] absolute top-[85%] left-0" viewBox="0 0 100 30" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M5,5 Q50,25 95,5" />
-                            </svg>
-                        </div>
-
-                         {/* Illustration (Bottom Right) */}
-                        <div className="absolute -bottom-10 -right-4 md:-bottom-20 md:-right-20 transform -rotate-3 pointer-events-none">
-                           <span className="font-handwriting text-[#8b5cf6] doodle-text text-xl md:text-5xl whitespace-nowrap">illustration</span>
-                        </div>
-
+                    {/* Updated Class Name to reveal-from-top with delay */}
+                    <div className="flex flex-col justify-center space-y-8 z-10 reveal-from-top delay-500">
+                      <div className="space-y-4">
+                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-light leading-[1.1] text-black dark:text-white">
+                            I see design as a way of <span className="font-serif italic text-orange-500">thinking</span>.
+                        </h2>
+                        <p className="text-lg md:text-2xl font-light text-gray-500 leading-relaxed max-w-xl">
+                            Each project is a balance of intent and exploration. I’m interested in how visuals communicate, evoke emotion and create understanding.
+                        </p>
                       </div>
-
+                    </div>
                   </div>
-                  <div className="w-full flex justify-start mt-32 md:mt-56 px-4">
-                    <p className="text-left text-black dark:text-white text-2xl md:text-5xl lg:text-6xl font-light leading-[1.1] dzinr-text">
-                      I see design as a way of thinking. Each project is a balance of intent and exploration. I’m interested in how visuals communicate, evoke emotion and create understanding.
-                    </p>
-                  </div>
-                </div>
               </section>
 
-              {/* Reduced padding in Works section */}
-              <section id="works" className="bg-white dark:bg-black pt-10 md:pt-20 pb-24 md:pb-48">
-                <div className="container mx-auto px-6 md:px-12 lg:px-24">
-                  <div className="flex flex-col mb-12 md:mb-20 reveal">
-                      <h2 className="text-6xl sm:text-8xl md:text-[10vw] font-black uppercase tracking-tighter leading-[0.9] dzinr-text text-black dark:text-white">
-                        MY WORK.
-                      </h2>
+              <section id="works" className="bg-white dark:bg-black pt-24 md:pb-48 overflow-hidden">
+                <div className="w-full px-4 md:px-6">
+                  <div className="flex justify-between items-end mb-12 md:mb-20 reveal pr-2 md:pr-12">
+                      <div className="flex flex-col">
+                          <h2 
+                            className="text-6xl sm:text-8xl md:text-[10vw] font-black uppercase tracking-tighter leading-[0.9] dzinr-text text-black dark:text-white transition-transform duration-75 ease-out will-change-transform origin-left"
+                            style={{ transform: `scaleX(${1 + Math.max(0, (rawScrollY - 200) * 0.002)})` }}
+                          >
+                            Projects.
+                          </h2>
+                      </div>
+                      
+                      {/* Horizontal Scroll Hint Removed */}
                   </div>
 
-                  <div className="flex flex-col mb-12 reveal border-t border-black/5 dark:border-white/5">
-                      {CATEGORIES.map((cat, i) => (
-                          <div 
-                              key={cat}
-                              id={`category-${cat}`}
-                              className="group relative border-b border-black/5 dark:border-white/5 cursor-pointer"
-                              onMouseEnter={() => playTick()}
-                              onClick={() => { setActiveCategory(cat); handleNavigate('category'); }}
-                          >
-                              <div className="relative flex items-center justify-between py-10 md:py-20 px-6 md:px-12 transition-all group-hover:bg-gray-50 dark:group-hover:bg-white/[0.02]">
-                                  <div className="flex items-center space-x-6 md:space-x-12">
-                                      <span className="text-sm md:text-lg font-black text-black/20 dark:text-white/20 work-item-text transition-all duration-300">0{i + 1}</span>
-                                      {/* Relaxed kerning here for better readability */}
-                                      <h3 className="text-4xl md:text-7xl lg:text-8xl font-black uppercase tracking-tight work-item-text">
-                                          {cat}
-                                      </h3>
-                                  </div>
-                                  <ArrowUpRight size={32} className="opacity-0 group-hover:opacity-100 transition-opacity" />
-                              </div>
-                          </div>
-                      ))}
+                  {/* 
+                     Layout Update: Horizontal Scroll (Flex)
+                     - w-[85vw] on mobile (peek next)
+                     - w-[40vw] on desktop (approx 2.5 visible) as requested
+                  */}
+                  <div className="flex w-full overflow-x-auto gap-6 px-6 md:px-12 pb-12 pt-4 snap-x snap-mandatory scrollbar-hide perspective-container items-center">
+                      {CATEGORIES.map((cat, i) => {
+                        // Check if this is the Packaging Design category
+                        const isFanta = cat === 'Packaging Design';
+                        // Override title if it is
+                        const displayTitle = isFanta ? "Fanta Can Surface Packaging" : cat;
+                        // Override click handler if it is
+                        const handleClick = isFanta 
+                            ? () => {
+                                // Find the Fanta project (ID 1)
+                                const fantaProject = PROJECTS.find(p => p.id === '1');
+                                if(fantaProject) handleProjectClick(fantaProject);
+                              }
+                            : () => { setActiveCategory(cat); handleNavigate('category'); };
+
+                        // Determine image for the card
+                        let image = '';
+                        if (cat === 'Packaging Design') image = PROJECTS.find(p => p.id === '1')?.thumbnail || '';
+                        else if (cat === 'Branding') image = PROJECTS.find(p => p.id === '2')?.thumbnail || '';
+                        else if (cat === 'Publication Design') image = PROJECTS.find(p => p.id === '3')?.thumbnail || '';
+
+                        return (
+                        <div 
+                          key={cat}
+                          className={`flex-shrink-0 w-[70vw] md:w-[35vw] lg:w-[30vw] snap-center card-wrapper reveal-card card-${i}`}
+                          style={{ transitionDelay: `${i * 100}ms` }}
+                        >
+                           <CategoryCard
+                              category={cat}
+                              customTitle={displayTitle}
+                              image={image}
+                              index={i}
+                              onClick={handleClick}
+                              onHover={() => playTick()}
+                           />
+                        </div>
+                      )})}
+                      
+                      {/* 4th Card: View All Work */}
+                      <div 
+                          className="flex-shrink-0 w-[70vw] md:w-[35vw] lg:w-[30vw] snap-center card-wrapper reveal-card card-3"
+                          style={{ transitionDelay: '300ms' }}
+                      >
+                          <ViewAllCard 
+                             onClick={initiateWorkTransition}
+                             onHover={() => playTick()}
+                          />
+                      </div>
+                      
+                      {/* End Spacer */}
+                      <div className="w-6 flex-shrink-0"></div>
                   </div>
                 </div>
               </section>
@@ -620,6 +932,13 @@ export default function App() {
             <CategoryPage 
               category={activeCategory} 
               onBack={() => handleNavigate('home', `category-${activeCategory}`)} 
+              onProjectClick={handleProjectClick}
+            />
+          )}
+
+          {activeView === 'work-gallery' && (
+            <WorkGalleryPage
+              onBack={() => handleNavigate('home')}
               onProjectClick={handleProjectClick}
             />
           )}
@@ -672,6 +991,14 @@ export default function App() {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
+        @keyframes continuousDrop {
+            0% { transform: translateY(-120vh) scale(0.5); opacity: 0; }
+            15% { transform: translateY(0) scale(1.05); opacity: 1; }
+            20% { transform: translateY(-10px) scale(0.95); opacity: 1; }
+            25% { transform: translateY(0) scale(1); opacity: 1; }
+            80% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(120vh) scale(1); opacity: 0; }
+        }
         .animate-gallery-marquee {
           animation: gallery-marquee 25s linear infinite;
         }
@@ -680,7 +1007,6 @@ export default function App() {
           -webkit-text-fill-color: transparent;
           -webkit-text-stroke: 1px currentColor;
           
-          /* Gradient: transparent at top (hover state), solid currentColor at bottom (default state) */
           background-image: linear-gradient(to bottom, transparent 50%, currentColor 50%);
           background-size: 100% 200%;
           background-position: 0% 100%;
@@ -699,6 +1025,36 @@ export default function App() {
 
         .doodle-text {
             cursor: default;
+        }
+
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+
+        /* CARD ENTRANCE ANIMATIONS */
+        .perspective-container {
+             perspective: 2500px;
+        }
+        .card-wrapper {
+             transition: all 1.4s cubic-bezier(0.19, 1, 0.22, 1);
+             transform-style: preserve-3d;
+             will-change: transform, opacity;
+        }
+        .card-wrapper.reveal-card {
+             opacity: 0;
+             /* Simple slide-up and fade-in for horizontal layout */
+             transform: translateY(100px) scale(0.9);
+        }
+
+        .card-wrapper.reveal-card.active {
+             opacity: 1;
+             transform: translateY(0) scale(1);
         }
       `}</style>
     </div>

@@ -6,7 +6,8 @@ interface HeaderProps {
   onContactClick: () => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
-  onViewChange: (view: 'home' | 'about' | 'resume' | 'category') => void;
+  onViewChange: (view: 'home' | 'about' | 'resume' | 'category' | 'work-gallery') => void;
+  onWorkClick: () => void;
   currentView: string;
   isFullscreen: boolean;
 }
@@ -16,6 +17,7 @@ const Header: React.FC<HeaderProps> = ({
   theme, 
   onToggleTheme, 
   onViewChange, 
+  onWorkClick,
   currentView, 
 }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -43,11 +45,17 @@ const Header: React.FC<HeaderProps> = ({
   const handleLinkClick = (id: string) => {
     setIsMobileMenuOpen(false);
 
+    if (id === 'works') {
+        onWorkClick();
+        return;
+    }
+
     if (id === 'about') {
       if (currentView !== 'about') onViewChange('about');
     } else if (id === 'resume') {
-      if (currentView !== 'resume') onViewChange('resume');
-    } else if (id === 'home' || id === 'works' || id === 'contact') {
+      // Open PDF in new tab instead of navigating to internal page
+      window.open(RESUME_LINK, '_blank');
+    } else if (id === 'home' || id === 'contact') {
       if (currentView === 'home') {
         const element = document.getElementById(id);
         if (element) {
@@ -66,9 +74,9 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   // Updated to text-[12px], font-normal (not bold), and reduced padding
-  const navItemClass = "text-[12px] font-normal tracking-wide text-black dark:text-white transition-colors hover:text-gray-500 cursor-pointer text-left block leading-tight";
+  const navItemClass = "text-[12px] font-normal tracking-wide text-black dark:text-white transition-colors hover:text-gray-500 cursor-pointer text-left block leading-tight hover:underline hover:underline-offset-4";
   
-  const isMinimalView = currentView === 'category' || currentView === 'about' || currentView === 'resume';
+  const isMinimalView = currentView === 'category' || currentView === 'about' || currentView === 'resume' || currentView === 'work-gallery';
 
   // Mobile Menu Typography - updated to use theme aware colors
   const mobileLinkClass = "text-[14px] md:text-[16px] font-light tracking-[0.25em] text-black dark:text-white hover:opacity-50 transition-all duration-300 py-2 w-full text-left";
@@ -109,7 +117,7 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="hidden md:flex items-start gap-12">
                     {/* Column 1: Navigation */}
                     <div className="flex flex-col space-y-0.5">
-                        <button onClick={() => handleLinkClick('works')} className={navItemClass}>Work</button>
+                        <button onClick={() => handleLinkClick('works')} className={navItemClass}>Projects</button>
                         <button onClick={() => handleLinkClick('about')} className={navItemClass}>About</button>
                         <button onClick={() => handleLinkClick('resume')} className={navItemClass}>Resume</button>
                     </div>
@@ -186,7 +194,7 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="flex flex-col space-y-8 pt-8">
                     <nav className="flex flex-col space-y-6">
                         <button onClick={() => handleLinkClick('works')} className={mobileLinkClass}>
-                            Work
+                            Projects
                         </button>
                         <button onClick={() => handleLinkClick('about')} className={mobileLinkClass}>
                             About

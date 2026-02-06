@@ -1,9 +1,10 @@
+
 import { Project } from './types';
 
 export const PROJECTS: Project[] = [
   {
     id: '1',
-    title: 'Fanta Can surface Packaging',
+    title: 'Fanta Can\nSurface Packaging',
     category: 'Packaging Design',
     description: 'A bold expression of fun, flavour, and youthful energy through vibrant surface design.',
     fullDescription: 'They reimagine the Fanta can as a bold expression of fun, flavour, and youthful energy. The design focuses on vibrant colours and expressive typography to capture the brand’s playful spirit while standing out in a crowded beverage market. By blending strong visual identity with contemporary graphic language, the project presents Fanta as fresh, dynamic, and culturally relevant for a new generation of consumers.',
@@ -51,7 +52,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: '3',
-    title: 'Morag Myercough Magazine',
+    title: 'Morag Myercough\nMagazine',
     category: 'Publication Design',
     description: 'Redefining the print-to-digital transition with high-contrast editorial layouts.',
     fullDescription: 'CHALLENGE: Design a print magazine for a world that only reads digitally. How do we make paper feel necessary again? SOLUTION: "META" magazine uses extreme typographic scales and high-gloss textures that cannot be replicated on OLED screens. The layout breaks the traditional 12-column grid to force the reader to physically rotate the magazine, creating a tangible interaction.',
@@ -69,7 +70,7 @@ export const PROJECTS: Project[] = [
   },
   {
     id: '4',
-    title: 'Illustration Book Design',
+    title: 'Illustration\nBook Design',
     category: 'Publication Design',
     description: 'A study in material storytelling and typographic architecture within physical forms.',
     fullDescription: 'CHALLENGE: Conceptualize a narrative book that explores architectural forms through paper engineering. SOLUTION: I developed "STRUCTURA", a limited-edition artist book where each page fold mimics a specific brutalist monument. The typography is carved into the paper using laser cutting, allowing light to cast shadows that become part of the reading experience.',

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Project } from '../types';
 import { ArrowUpRight } from 'lucide-react';
@@ -29,7 +30,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
             <span className="text-[10px] uppercase tracking-widest text-gray-500 font-black mb-1 block">
               {project.category}
             </span>
-            <h3 className="text-xl font-black uppercase tracking-tighter text-black dark:text-white">
+            <h3 className="text-xl font-black uppercase tracking-tighter text-black dark:text-white whitespace-pre-wrap">
               {project.title}
             </h3>
           </div>
