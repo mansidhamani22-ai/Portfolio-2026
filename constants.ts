@@ -3,35 +3,48 @@ import { Project } from './types';
 
 export const PROJECTS: Project[] = [
   {
+    id: '2',
+    title: 'Scrollback —\nIs 2026\nThe New 2016?',
+    category: 'Publication Design',
+    description: 'A speculative magazine exploring why 2016 continues to feel emotionally closer than the present.',
+    fullDescription: 'Scrollback is a speculative magazine exploring why 2016 continues to feel emotionally closer than the present. Through visual nostalgia, internet memory, and cultural reflection, the project examines our collective urge to rewind time. It questions whether we miss the year itself or the feeling of a softer, slower internet.',
+    thumbnail: 'https://drive.google.com/thumbnail?id=1j0LjL0Exo1WTC_BBnvp_5RfnrjS-Hde-&sz=w1000',
+    images: [
+      'https://drive.google.com/thumbnail?id=1wCDV0SMiYi8CljAOTV5gae6gdpsrusGg&sz=w3000'
+    ],
+    tools: ['Adobe InDesign', 'Photoshop'],
+    year: '2026'
+  },
+  {
     id: '1',
     title: 'Fanta Can\nSurface Packaging',
     category: 'Packaging Design',
     description: 'A bold expression of fun, flavour, and youthful energy through vibrant surface design.',
     fullDescription: 'They reimagine the Fanta can as a bold expression of fun, flavour, and youthful energy. The design focuses on vibrant colours and expressive typography to capture the brand’s playful spirit while standing out in a crowded beverage market. By blending strong visual identity with contemporary graphic language, the project presents Fanta as fresh, dynamic, and culturally relevant for a new generation of consumers.',
-    thumbnail: 'https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=1000&auto=format&fit=crop',
+    thumbnail: 'https://drive.google.com/thumbnail?id=1oN8H-aJAbdh6T7AFlRq905cKNoQH440_&sz=w1000',
     images: [
       'https://drive.google.com/thumbnail?id=1OUoiNkKqt1ioFjqrCdJ3lywtUAIaMtws&sz=w3000'
     ],
     tools: ['Adobe Illustrator'],
-    year: '2024'
+    year: '2025'
   },
   {
-    id: '2',
-    title: 'The Modernist',
-    category: 'Branding',
-    description: 'Strategic visual identity for a future-facing cultural institution.',
-    fullDescription: 'CHALLENGE: Rebranding "The Modernist" museum to appeal to Gen Z digital nomads while respecting its 50-year history of classical art. SOLUTION: I created a "living" logo that uses real-time visitor data to change its weight and color. The brand guidelines focus on high-accessibility color palettes and a flexible grid system that works from mobile screens to 10-foot physical banners.',
-    thumbnail: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=1000&auto=format&fit=crop',
+    id: '4',
+    title: 'Illustration\nBook Design',
+    category: 'Publication Design',
+    description: 'A study in material storytelling and typographic architecture within physical forms.',
+    fullDescription: 'CHALLENGE: Conceptualize a narrative book that explores architectural forms through paper engineering. SOLUTION: I developed "STRUCTURA", a limited-edition artist book where each page fold mimics a specific brutalist monument. The typography is carved into the paper using laser cutting, allowing light to cast shadows that become part of the reading experience.',
+    thumbnail: 'https://drive.google.com/thumbnail?id=19DxRJWW0rkEEmiDVWE6fRTFGmk4Ay9DR&sz=w1000',
     images: [
-      'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1517842645767-c639042777db?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1511467687858-23d96c32e4ae?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1505330622279-bf7d7fc918f4?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1551033406-611cf9a28f67?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1200&auto=format&fit=crop'
+      'https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1551650975-87deedd944c3?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1612810806563-4cb50055dc6b?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=1200&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&auto=format&fit=crop'
     ],
-    tools: ['After Effects', 'Illustrator', 'Style Guides'],
-    year: '2024'
+    tools: ['InDesign', 'Procreate'],
+    year: '2025'
   },
   {
     id: '5',
@@ -66,24 +79,6 @@ export const PROJECTS: Project[] = [
       'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?q=80&w=1200&auto=format&fit=crop'
     ],
     tools: ['Adobe InDesign'],
-    year: '2025'
-  },
-  {
-    id: '4',
-    title: 'Illustration\nBook Design',
-    category: 'Publication Design',
-    description: 'A study in material storytelling and typographic architecture within physical forms.',
-    fullDescription: 'CHALLENGE: Conceptualize a narrative book that explores architectural forms through paper engineering. SOLUTION: I developed "STRUCTURA", a limited-edition artist book where each page fold mimics a specific brutalist monument. The typography is carved into the paper using laser cutting, allowing light to cast shadows that become part of the reading experience.',
-    thumbnail: 'https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?q=80&w=1000&auto=format&fit=crop',
-    images: [
-      'https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1551650975-87deedd944c3?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1612810806563-4cb50055dc6b?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&auto=format&fit=crop'
-    ],
-    tools: ['InDesign', 'Procreate'],
     year: '2025'
   }
 ];

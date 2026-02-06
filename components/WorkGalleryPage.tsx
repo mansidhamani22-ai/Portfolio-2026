@@ -46,7 +46,7 @@ const WorkGalleryPage: React.FC<WorkGalleryPageProps> = ({ onBack, onProjectClic
                    <img 
                       src={project.thumbnail} 
                       alt={project.title} 
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-[0.7s] ease-out group-hover:scale-105"
+                      className="w-full h-full object-cover transition-all duration-[0.7s] ease-out group-hover:scale-105"
                    />
                    
                    {/* Overlay info on hover */}

@@ -8,14 +8,11 @@ import CategoryPage from './components/CategoryPage';
 import WorkGalleryPage from './components/WorkGalleryPage';
 import RubikCubeTransition from './components/RubikCubeTransition';
 import PenToolBackground from './components/PenToolBackground';
-import Assistant from './components/Assistant';
 import { PROJECTS } from './constants';
 import { Category, Project } from './types';
 import { 
   ArrowUp, Info, Loader2, SkipForward, SkipBack, Moon, Sun, Mail, ArrowUpRight, ArrowRight
 } from 'lucide-react';
-
-const CATEGORIES: Category[] = ['Packaging Design', 'Branding', 'Publication Design'];
 
 const TRACKS = [
   { 
@@ -51,18 +48,18 @@ const PaperFilter = () => (
 /* -------------------------------------------------------------------------- */
 
 interface CategoryCardProps {
-  category: Category;
+  category: string;
   customTitle?: string;
   image: string;
   index: number;
+  year: string;
   onClick: () => void;
   onHover: () => void;
 }
 
-const CategoryCard: React.FC<CategoryCardProps> = ({ category, customTitle, image, index, onClick, onHover }) => {
+const CategoryCard: React.FC<CategoryCardProps> = ({ category, customTitle, image, index, year, onClick, onHover }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
-  const [glossPos, setGlossPos] = useState({ x: 50, y: 50 });
   const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -76,16 +73,11 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, customTitle, imag
     const normY = (y / rect.height) * 2 - 1;
     
     // Max rotation in degrees
-    const MAX_ROTATION = 14;
+    const MAX_ROTATION = 5;
     
     setRotation({ 
       x: -normY * MAX_ROTATION, 
       y: normX * MAX_ROTATION 
-    });
-    
-    setGlossPos({ 
-      x: (x / rect.width) * 100, 
-      y: (y / rect.height) * 100 
     });
   };
 
@@ -96,83 +88,59 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, customTitle, imag
 
   return (
     <div 
-      className="relative w-full aspect-square perspective-[1200px] group cursor-pointer z-10"
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      onMouseEnter={() => { setIsHovered(true); onHover(); }}
+      className="group cursor-pointer w-full flex flex-col gap-5"
       onClick={onClick}
+      onMouseEnter={() => { setIsHovered(true); onHover(); }}
+      onMouseLeave={handleMouseLeave}
     >
+      {/* 3D Image Container - STRICT ASPECT SQUARE USING PADDING HACK */}
+      {/* pt-[100%] forces the height to match the width exactly */}
       <div 
-        ref={cardRef}
-        className="w-full h-full relative transition-all duration-200 ease-out transform-style-3d rounded-[1.5rem]"
-        style={{
-          transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg) scale(${isHovered ? 1.05 : 1})`,
-        }}
+        className="w-full pt-[100%] relative perspective-[1200px]"
+        onMouseMove={handleMouseMove}
       >
-        {/* Shadow Layer - Detached from card for depth */}
         <div 
-           className="absolute inset-4 bg-black/50 rounded-[1.5rem] blur-2xl transition-all duration-300 opacity-60 group-hover:opacity-80"
-           style={{ transform: 'translateZ(-50px) scale(0.9)' }}
-        />
-
-        {/* Main Card Body */}
-        <div className="absolute inset-0 bg-[#0a0a0a] border border-white/10 rounded-[1.5rem] overflow-hidden transform-style-3d shadow-2xl">
-            
-            {/* Background Image Layer */}
-            <div className="absolute inset-0 z-0">
-               <img 
-                 src={image} 
-                 alt={customTitle || category} 
-                 className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-110 opacity-70 group-hover:opacity-100 grayscale group-hover:grayscale-0"
-               />
-               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-90 group-hover:opacity-60 transition-opacity duration-500"></div>
-            </div>
-
-            {/* Dynamic Gloss/Sheen */}
-            <div 
-                className="absolute inset-0 mix-blend-overlay transition-opacity duration-300 pointer-events-none z-10"
-                style={{
-                    opacity: isHovered ? 0.4 : 0,
-                    background: `radial-gradient(circle at ${glossPos.x}% ${glossPos.y}%, rgba(255,255,255,0.7) 0%, transparent 60%)`
-                }}
+          ref={cardRef}
+          className="absolute inset-0 w-full h-full transition-all duration-300 ease-out transform-style-3d rounded-sm overflow-hidden border border-black/5 dark:border-white/5 bg-gray-100 dark:bg-[#111]"
+          style={{
+            transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
+          }}
+        >
+            {/* Image */}
+            <img 
+               src={image} 
+               alt={customTitle || category} 
+               className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
             />
 
-            {/* 3D Floating Content */}
-            <div className="absolute inset-0 p-8 md:p-10 flex flex-col justify-between transform-style-3d z-20">
-                {/* Header */}
-                <div 
-                    className="flex justify-between items-start"
-                    style={{ transform: 'translateZ(40px)' }}
-                >
-                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 border border-white/20 px-3 py-1.5 rounded-full backdrop-blur-md bg-black/40 shadow-lg">
-                        0{index + 1}
-                     </span>
-                     <div className={`w-10 h-10 rounded-full bg-white text-black flex items-center justify-center transition-all duration-500 shadow-lg ${isHovered ? 'opacity-100 scale-100 rotate-0' : 'opacity-0 scale-50 rotate-45'}`}>
-                        <ArrowUpRight size={18} />
-                     </div>
-                </div>
+            {/* Gloss/Sheen */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none mix-blend-overlay" />
 
-                {/* Bottom Content */}
-                <div 
-                    className="space-y-4"
-                    style={{ transform: 'translateZ(70px)' }}
-                >
-                    <h3 className="text-3xl lg:text-5xl font-black uppercase tracking-tighter text-white leading-[0.9] drop-shadow-2xl">
-                        {(customTitle || category).split(' ').map((word, i) => (
-                           <span key={i} className="block">{word}</span>
-                        ))}
-                    </h3>
-                    
-                    {/* Progress Bar Line */}
-                    <div className="h-0.5 w-full bg-white/20 mt-6 overflow-hidden rounded-full backdrop-blur-sm">
-                        <div 
-                           className="h-full bg-orange-500 w-full transition-transform duration-700 ease-out origin-left"
-                           style={{ transform: isHovered ? 'scaleX(1)' : 'scaleX(0)' }}
-                        />
-                    </div>
-                </div>
+            {/* Number Badge */}
+            <div 
+               className="absolute top-4 left-4 w-8 h-8 rounded-full bg-black/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-white font-black text-xs z-20"
+               style={{ transform: 'translateZ(20px)' }}
+            >
+               0{index + 1}
             </div>
         </div>
+      </div>
+
+      {/* Info Below */}
+      <div className="flex flex-col space-y-2 pt-1">
+          {/* Discipline and Year Row */}
+          <div className="flex items-center justify-between border-t border-black/10 dark:border-white/10 pt-3 pb-1">
+             <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-black dark:group-hover:text-white transition-colors">
+                {category}
+             </span>
+             <span className="text-[10px] font-mono text-gray-400">
+                {year}
+             </span>
+          </div>
+          {/* Title */}
+          <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tighter text-black dark:text-white leading-[0.9] break-words whitespace-pre-wrap group-hover:text-orange-500 transition-colors duration-300">
+             {customTitle}
+          </h3>
       </div>
     </div>
   );
@@ -180,23 +148,27 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, customTitle, imag
 
 const ViewAllCard: React.FC<{ onClick: () => void, onHover: () => void }> = ({ onClick, onHover }) => {
     return (
-        <div 
-            className="w-full aspect-square relative group cursor-pointer perspective-[1200px]"
-            onClick={onClick}
-            onMouseEnter={onHover}
-        >
-            <div className="w-full h-full relative transition-all duration-300 ease-out transform-style-3d rounded-[1.5rem] bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 group-hover:scale-105 group-hover:-translate-y-2 shadow-2xl overflow-hidden flex flex-col items-center justify-center gap-8">
-                 
-                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        <div className="w-full flex flex-col gap-5">
+            <div 
+                className="w-full pt-[100%] relative group cursor-pointer perspective-[1200px]"
+                onClick={onClick}
+                onMouseEnter={onHover}
+            >
+                <div className="absolute inset-0 w-full h-full transition-all duration-300 ease-out transform-style-3d rounded-sm bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 group-hover:-translate-y-2 shadow-xl overflow-hidden flex flex-col items-center justify-center gap-6">
+                     
+                     <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                 <div className="relative z-10 w-28 h-28 md:w-36 md:h-36 rounded-full border-2 border-black dark:border-white flex items-center justify-center transition-all duration-500 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black">
-                     <ArrowRight size={56} className="transition-transform duration-500 group-hover:translate-x-1" />
-                 </div>
-                 
-                 <span className="relative z-10 text-sm md:text-xl font-black uppercase tracking-[0.2em] text-black dark:text-white group-hover:tracking-[0.3em] transition-all duration-500">
-                    View All Work
-                 </span>
+                     <div className="relative z-10 w-24 h-24 rounded-full border-2 border-black dark:border-white flex items-center justify-center transition-all duration-500 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black">
+                         <ArrowRight size={40} className="transition-transform duration-500 group-hover:translate-x-1" />
+                     </div>
+                     
+                     <span className="relative z-10 text-sm font-black uppercase tracking-[0.2em] text-black dark:text-white group-hover:tracking-[0.3em] transition-all duration-500">
+                        View All
+                     </span>
+                </div>
             </div>
+            {/* Empty space to match layout of other cards */}
+            <div className="h-[90px]"></div> 
         </div>
     );
 };
@@ -642,24 +614,14 @@ export default function App() {
   };
 
   const checkReveals = useCallback(() => {
-    // We use a broader selection to ensure all cards are captured
     const reveals = document.querySelectorAll('.reveal, .reveal-card, .reveal-from-top');
     const windowHeight = window.innerHeight;
 
     reveals.forEach(el => {
       const rect = el.getBoundingClientRect();
-      
-      // If element top is within the viewport or slightly above, it should be active.
-      // We check if the top is less than 90% of viewport height.
-      // This means as soon as the top 10% of the element enters from bottom, it triggers.
       if (rect.top < windowHeight * 0.90) {
         el.classList.add('active');
-      } 
-      
-      // Reset animation if element goes completely below the viewport again.
-      // This ensures that if you scroll UP (element goes down and out of view), 
-      // the animation resets so it can play again when you scroll DOWN.
-      else if (rect.top > windowHeight) {
+      } else if (rect.top > windowHeight) {
         el.classList.remove('active');
       }
     });
@@ -673,14 +635,12 @@ export default function App() {
       const scrolled = docHeight > 0 ? (y / docHeight) * 100 : 0;
       setGlobalScroll(scrolled);
       
-      // Call checkReveals inside requestAnimationFrame for performance
       requestAnimationFrame(checkReveals);
     };
     
     window.addEventListener('scroll', handleGlobalScroll);
-    handleGlobalScroll(); // Check initially
+    handleGlobalScroll(); 
     
-    // Fallback check
     setTimeout(checkReveals, 300);
 
     return () => window.removeEventListener('scroll', handleGlobalScroll);
@@ -732,21 +692,7 @@ export default function App() {
   };
 
   const handleCloseProject = () => {
-    const categoryToLandOn = selectedProject?.category;
     setIsModalOpen(false);
-    
-    setTimeout(() => {
-      if (activeView === 'work-gallery') {
-          // Do nothing, stay on gallery
-      } else if (categoryToLandOn && categoryToLandOn !== 'Packaging Design') {
-        // If we are coming from 'Packaging Design' (Fanta), we want to go home, not to the category page.
-        // For other categories, we go to the category page.
-        setActiveCategory(categoryToLandOn);
-        handleNavigate('category');
-      } else {
-        handleNavigate('home');
-      }
-    }, 300);
   };
 
   const scrollToSection = (id: string) => {
@@ -791,9 +737,6 @@ export default function App() {
         onToggleTheme={toggleTheme} 
       />
       
-      {/* AI Assistant */}
-      <Assistant onOpenProject={handleProjectClick} />
-
       <button 
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         className={`fixed left-1/2 -translate-x-1/2 bottom-12 z-[1100] flex items-center justify-center w-16 h-16 bg-black dark:bg-white text-white dark:text-black rounded-full shadow-2xl transition-all duration-500 border border-white/10 dark:border-black/10 hover:scale-110 active:scale-95 ${globalScroll > 15 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16 pointer-events-none'}`}
@@ -828,7 +771,6 @@ export default function App() {
               <section id="home" className="relative flex items-center min-h-screen pt-20 pb-20 overflow-hidden">
                   <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
                     
-                    {/* ID Card Column - Now Visible on Mobile - Fixed Overlap */}
                     <div className="relative h-[550px] md:h-[60vh] w-full pointer-events-none flex justify-center order-first lg:order-none">
                        {viewState === 'ready' && (
                          <div className="scale-[0.8] md:scale-100 origin-top w-full h-full flex justify-center">
@@ -837,7 +779,6 @@ export default function App() {
                        )}
                     </div>
 
-                    {/* Updated Class Name to reveal-from-top with delay */}
                     <div className="flex flex-col justify-center space-y-8 z-10 reveal-from-top delay-500">
                       <div className="space-y-4">
                         <h2 className="text-3xl md:text-5xl lg:text-6xl font-light leading-[1.1] text-black dark:text-white">
@@ -862,56 +803,29 @@ export default function App() {
                             Projects.
                           </h2>
                       </div>
-                      
-                      {/* Horizontal Scroll Hint Removed */}
                   </div>
 
-                  {/* 
-                     Layout Update: Horizontal Scroll (Flex)
-                     - w-[85vw] on mobile (peek next)
-                     - w-[40vw] on desktop (approx 2.5 visible) as requested
-                  */}
-                  <div className="flex w-full overflow-x-auto gap-6 px-6 md:px-12 pb-12 pt-4 snap-x snap-mandatory scrollbar-hide perspective-container items-center">
-                      {CATEGORIES.map((cat, i) => {
-                        // Check if this is the Packaging Design category
-                        const isFanta = cat === 'Packaging Design';
-                        // Override title if it is
-                        const displayTitle = isFanta ? "Fanta Can Surface Packaging" : cat;
-                        // Override click handler if it is
-                        const handleClick = isFanta 
-                            ? () => {
-                                // Find the Fanta project (ID 1)
-                                const fantaProject = PROJECTS.find(p => p.id === '1');
-                                if(fantaProject) handleProjectClick(fantaProject);
-                              }
-                            : () => { setActiveCategory(cat); handleNavigate('category'); };
-
-                        // Determine image for the card
-                        let image = '';
-                        if (cat === 'Packaging Design') image = PROJECTS.find(p => p.id === '1')?.thumbnail || '';
-                        else if (cat === 'Branding') image = PROJECTS.find(p => p.id === '2')?.thumbnail || '';
-                        else if (cat === 'Publication Design') image = PROJECTS.find(p => p.id === '3')?.thumbnail || '';
-
-                        return (
+                  <div className="flex w-full overflow-x-auto gap-6 px-6 md:px-12 pb-12 pt-4 snap-x snap-mandatory scrollbar-hide perspective-container items-start">
+                      {PROJECTS.slice(0, 3).map((project, i) => (
                         <div 
-                          key={cat}
+                          key={project.id}
                           className={`flex-shrink-0 w-[70vw] md:w-[35vw] lg:w-[30vw] snap-center card-wrapper reveal-card card-${i}`}
                           style={{ transitionDelay: `${i * 100}ms` }}
                         >
                            <CategoryCard
-                              category={cat}
-                              customTitle={displayTitle}
-                              image={image}
+                              category={project.category}
+                              customTitle={project.title}
+                              image={project.thumbnail}
                               index={i}
-                              onClick={handleClick}
+                              year={project.year}
+                              onClick={() => handleProjectClick(project)}
                               onHover={() => playTick()}
                            />
                         </div>
-                      )})}
+                      ))}
                       
-                      {/* 4th Card: View All Work */}
                       <div 
-                          className="flex-shrink-0 w-[70vw] md:w-[35vw] lg:w-[30vw] snap-center card-wrapper reveal-card card-3"
+                          className="flex-shrink-0 w-[70vw] md:w-[35vw] lg:w-[30vw] snap-center card-wrapper reveal-card card-view-all"
                           style={{ transitionDelay: '300ms' }}
                       >
                           <ViewAllCard 
@@ -920,7 +834,6 @@ export default function App() {
                           />
                       </div>
                       
-                      {/* End Spacer */}
                       <div className="w-6 flex-shrink-0"></div>
                   </div>
                 </div>

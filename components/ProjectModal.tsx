@@ -40,14 +40,16 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
     const elements = containerRef.current.querySelectorAll('.project-image-scroll, .contact-reveal');
     elements.forEach((el) => observer.observe(el));
 
+    // Reduced delay from 1100ms to 100ms to show images immediately
     const timer = setTimeout(() => {
       elements.forEach((el) => {
         const rect = el.getBoundingClientRect();
-        if (rect.top < window.innerHeight) {
+        // Check if element is roughly within viewport
+        if (rect.top < window.innerHeight * 1.5) {
           el.classList.add('active');
         }
       });
-    }, 1100);
+    }, 100);
 
     return () => {
       observer.disconnect();
@@ -220,11 +222,36 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
                 <img 
                   src={img} 
                   alt={`${project.title} detail ${idx + 1}`} 
-                  className="w-full h-auto object-cover grayscale hover:grayscale-0 transition-all duration-[1.5s]"
+                  className="w-full h-auto object-cover transition-all duration-[1.5s]"
                   loading="lazy"
                 />
               </div>
            ))}
+
+           {/* Scrollback Project Flipbook Embed */}
+           {project.id === '2' && (
+              <div className="project-image-scroll w-full mt-12 opacity-0 translate-y-12 transition-all duration-[1s] ease-[cubic-bezier(0.16,1,0.3,1)]">
+                 <iframe 
+                    allowFullScreen 
+                    allow="clipboard-write" 
+                    scrolling="no" 
+                    className="fp-iframe w-full" 
+                    src="https://heyzine.com/flip-book/60213f805a.html" 
+                    style={{ border: '1px solid lightgray', height: '400px' }}
+                 ></iframe>
+                 
+                 <div className="grid grid-cols-2 gap-8 mt-8 border-t border-black/10 dark:border-white/10 pt-8">
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Year</p>
+                      <p className="text-xl font-black text-black dark:text-white">{project.year}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Discipline</p>
+                      <p className="text-xl font-black text-black dark:text-white">{project.category}</p>
+                    </div>
+                 </div>
+              </div>
+           )}
         </section>
 
         {/* Contact Section */}

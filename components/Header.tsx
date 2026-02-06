@@ -117,7 +117,7 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="hidden md:flex items-start gap-12">
                     {/* Column 1: Navigation */}
                     <div className="flex flex-col space-y-0.5">
-                        <button onClick={() => handleLinkClick('works')} className={navItemClass}>Projects</button>
+                        <button onClick={() => handleLinkClick('works')} className={navItemClass}>Work</button>
                         <button onClick={() => handleLinkClick('about')} className={navItemClass}>About</button>
                         <button onClick={() => handleLinkClick('resume')} className={navItemClass}>Resume</button>
                     </div>
@@ -194,7 +194,7 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="flex flex-col space-y-8 pt-8">
                     <nav className="flex flex-col space-y-6">
                         <button onClick={() => handleLinkClick('works')} className={mobileLinkClass}>
-                            Projects
+                            Work
                         </button>
                         <button onClick={() => handleLinkClick('about')} className={mobileLinkClass}>
                             About

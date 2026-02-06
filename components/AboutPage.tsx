@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { ArrowUpRight, ArrowLeft } from 'lucide-react';
 
@@ -39,7 +40,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
               <img 
                 src={profileImage} 
                 alt="Maansi Dhamani Portrait" 
-                className="w-full h-full object-cover grayscale brightness-[0.95] dark:brightness-[0.85] transition-all duration-1000 ease-in-out"
+                className="w-full h-full object-cover brightness-[0.95] dark:brightness-[0.85] transition-all duration-1000 ease-in-out"
                 onError={(e) => {
                   e.currentTarget.src = fallbackImage;
                 }}

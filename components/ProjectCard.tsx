@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Project } from '../types';
 import { ArrowUpRight } from 'lucide-react';
 
@@ -18,7 +18,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onClick }) => {
         <img 
           src={project.thumbnail} 
           alt={project.title} 
-          className="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000 group-hover:scale-110"
+          className="h-full w-full object-cover transition-all duration-1000 group-hover:scale-110"
         />
       </div>
       

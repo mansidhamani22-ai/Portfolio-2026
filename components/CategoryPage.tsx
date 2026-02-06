@@ -50,7 +50,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category, onBack, onProject
                    <img 
                       src={project.thumbnail} 
                       alt={project.title} 
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-[1.2s] ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-105"
+                      className="w-full h-full object-cover transition-all duration-[1.2s] ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-105"
                    />
                    <div className="absolute top-6 right-6 w-12 h-12 bg-white dark:bg-black text-black dark:text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-xl">
                       <ArrowUpRight size={20} />
