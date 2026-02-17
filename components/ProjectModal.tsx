@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Project } from '../types';
 import { X, ArrowRight, BookOpen, ArrowDown, ArrowLeft, ArrowUpRight, ArrowUp } from 'lucide-react';
+import StarField from './StarField';
 
 interface ProjectModalProps {
   project: Project | null;
@@ -32,24 +33,21 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
       },
       { 
         root: containerRef.current,
-        threshold: 0.01,
-        rootMargin: '10% 0px 20% 0px'
+        // Drastically increased bottom margin to ensure images trigger 'active' state 
+        // well before they are scrolled to, effectively making them visible immediately if downloaded.
+        rootMargin: '100px 0px 100% 0px' 
       }
     );
 
     const elements = containerRef.current.querySelectorAll('.project-image-scroll, .contact-reveal');
     elements.forEach((el) => observer.observe(el));
 
-    // Reduced delay from 1100ms to 100ms to show images immediately
+    // Fallback: forcefully activate near-top elements immediately to prevent pop-in
     const timer = setTimeout(() => {
       elements.forEach((el) => {
-        const rect = el.getBoundingClientRect();
-        // Check if element is roughly within viewport
-        if (rect.top < window.innerHeight * 1.5) {
-          el.classList.add('active');
-        }
+        el.classList.add('active');
       });
-    }, 100);
+    }, 50);
 
     return () => {
       observer.disconnect();
@@ -82,7 +80,11 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       if (containerRef.current) {
+        // Ensure instant scroll reset without smooth behavior interference
+        containerRef.current.style.scrollBehavior = 'auto';
         containerRef.current.scrollTop = 0;
+        // Restore smooth scroll preference if needed via CSS or leave as auto (we removed scroll-smooth class)
+        
         lastScrollTopRef.current = 0;
         scrollAccumulatorRef.current = 0;
       }
@@ -90,10 +92,10 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
       currentRef?.addEventListener('scroll', handleScroll, { passive: true });
       return () => {
         currentRef?.removeEventListener('scroll', handleScroll);
-        document.body.style.overflow = 'auto';
+        document.body.style.overflow = '';
       };
     } else {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
     }
   }, [isOpen, project?.id, onScrollTick]);
 
@@ -118,7 +120,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
 
   const handleFooterLinkClick = (link: string) => {
     if (link === 'Resume') {
-       window.open("https://drive.google.com/file/d/1FqMPq5nQ_NrNJIOLOGVmrLKhMvauw3yE/view?usp=drive_link", '_blank');
+       window.open("https://drive.google.com/file/d/1jpUrHkoLULdjYiFCAkL98cR1U8A_2HBg/view?usp=sharing", '_blank');
        return;
     }
     
@@ -134,6 +136,13 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
   };
 
   if (!project) return null;
+
+  const isHues = project.id === '5';
+  // Use a 6-column grid for Hues & Brews to allow 2-2-3 splits easily.
+  // Use 2-column grid for everything else.
+  const gridClassName = isHues 
+    ? "grid grid-cols-1 md:grid-cols-6 gap-6 md:gap-8 px-4 md:px-12 lg:px-24"
+    : "grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 px-4 md:px-12 lg:px-24";
 
   return (
     <div 
@@ -152,7 +161,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
 
       <div 
         ref={containerRef}
-        className={`relative w-full h-full bg-white dark:bg-[#050505] overflow-y-auto overflow-x-hidden scroll-smooth transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] transform shadow-2xl ${
+        className={`relative w-full h-full bg-white dark:bg-[#050505] overflow-y-auto overflow-x-hidden transition-transform duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] transform shadow-2xl ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
         style={{ 
@@ -160,6 +169,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
           overscrollBehavior: 'contain'
         }}
       >
+        <StarField className="absolute inset-0 z-0 h-full pointer-events-none" />
+        
         {/* Header - Fixed to ensure it stays on top */}
         <div className="sticky top-0 left-0 w-full z-[2010] p-4 md:p-6 flex justify-between items-center bg-white/95 dark:bg-[#050505]/95 backdrop-blur-xl border-b border-black/5 dark:border-white/5">
           <div className="flex items-center space-x-4">
@@ -172,9 +183,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
           </div>
         </div>
 
-        {/* Hero Image Removed */}
-
-        <div className="container mx-auto px-6 md:px-12 lg:px-24">
+        <div className="container mx-auto px-6 md:px-12 lg:px-24 relative z-10">
           <section className="min-h-fit flex flex-col justify-center py-24 lg:py-32">
             <div className="grid lg:grid-cols-12 gap-12 lg:gap-24 items-start">
               <div className="lg:col-span-8 space-y-12 relative z-10">
@@ -212,65 +221,167 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
           </section>
         </div>
 
-        {/* Images */}
-        <section id="project-image-sequence" className="space-y-0 px-4 md:px-12">
-           {project.images.map((img, idx) => (
-              <div 
-                key={idx} 
-                className="project-image-scroll w-full overflow-hidden opacity-0 translate-y-12 transition-all duration-[1s] ease-[cubic-bezier(0.16,1,0.3,1)]"
-              >
-                <img 
-                  src={img} 
-                  alt={`${project.title} detail ${idx + 1}`} 
-                  className="w-full h-auto object-cover transition-all duration-[1.5s]"
-                  loading="lazy"
-                />
-              </div>
-           ))}
+        {/* Images with Curvy Corners, Sections, and Adaptive Layout */}
+        <section id="project-image-sequence" className={`${gridClassName} relative z-10`}>
+           {project.images.map((img, idx) => {
+              // Layout Logic:
+              const isScrollback = project.id === '2';
+              const isFanta = project.id === '1';
+              const isFritz = project.id === '4';
+              const isMorag = project.id === '3';
+              // isHues calculated above for grid className
+
+              let colSpanClass = 'md:col-span-1';
+              let isSquare = false;
+              let customAspect = '';
+
+              if (isHues) {
+                // Hues & Brews Layout:
+                // Row 1: 2 items (Indices 0, 1) -> 3/6 width each
+                if (idx < 2) {
+                    colSpanClass = 'md:col-span-3'; // First 2: Half width
+                    isSquare = false; // Allow natural aspect ratio to prevent cropping
+                } else if (idx === 2) {
+                    colSpanClass = 'md:col-span-6'; // Big one: Full width
+                } else if (idx < 5) { // Indices 3, 4
+                    colSpanClass = 'md:col-span-3'; // Next 2: Half width
+                    isSquare = false; // Use natural aspect ratio (frames/rectangles)
+                } else {
+                    colSpanClass = 'md:col-span-6'; // Remaining: Full width (The new rectangle)
+                    isSquare = false;
+                }
+              } else {
+                  // Standard 2-column Grid Logic
+                  let isFullWidth = false;
+
+                  if (isFanta) {
+                    // Fanta: 
+                    // Index 0: Rectangle (Full width)
+                    // Index 1, 2: Natural aspect ratio (disabled square)
+                    isFullWidth = (idx === 0);
+                    isSquare = false;
+                  } else if (isFritz) {
+                    // Fritz: 
+                    // Index 0: Rectangle (Full width)
+                    // Index 1, 2: Natural aspect ratio to show full image content
+                    isFullWidth = (idx === 0);
+                    isSquare = false; 
+                  } else if (isMorag) {
+                    // Morag:
+                    // Index 0: Rectangle (Full width)
+                    // Index 1, 2: Squares (Half width) - Enforce square to keep grid tidy
+                    isFullWidth = (idx === 0);
+                    isSquare = idx !== 0; // Only square for subsequent images, 1st is natural
+                  } else if (isScrollback) {
+                    // Scrollback: 0 (Sq), 1 (Sq), 2 (Full)
+                    isFullWidth = (idx % 3 === 2);
+                    isSquare = !isFullWidth;
+                  } else {
+                    // Default: First image full width
+                    isFullWidth = (idx === 0);
+                  }
+
+                  colSpanClass = isFullWidth ? 'md:col-span-2' : 'md:col-span-1';
+              }
+              
+              // Standard styling
+              const bgClass = 'bg-gray-50 dark:bg-[#0a0a0a]';
+              const finalAspect = customAspect || (isSquare ? 'aspect-square' : '');
+              const imgHeightClass = finalAspect ? 'h-full object-cover' : 'h-auto';
+
+              // Specific handling to unzoom Fanta and Fritz main images.
+              // Both Fanta (ID 1) and Fritz (ID 4) now have NO container padding.
+              const containerPadding = '';
+
+              // Specific zoom logic
+              const isHuesZoom = isHues && idx === 4;
+              const isFantaZoom = isFanta && idx > 0;
+              const isZoomed = isHuesZoom || isFantaZoom;
+
+              let zoomStyle: React.CSSProperties = {};
+              if (isHuesZoom) {
+                  zoomStyle = { transform: 'scale(2)' };
+              } else if (isFantaZoom) {
+                  zoomStyle = { transform: 'scale(1.1)' };
+              }
+
+              return (
+                <div 
+                    key={`${project.id}-${idx}`}
+                    className={`project-image-scroll w-full rounded-[1.5rem] md:rounded-[2.5rem] overflow-hidden border-2 border-transparent hover:border-black/5 dark:hover:border-white/10 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-lg opacity-0 translate-y-12 ${colSpanClass} ${finalAspect} ${bgClass} ${containerPadding}`}
+                >
+                    <img 
+                      src={img} 
+                      alt={`${project.title} detail ${idx + 1}`} 
+                      className={`w-full block ${imgHeightClass} ${isZoomed ? 'origin-center' : ''}`}
+                      style={zoomStyle}
+                      loading="eager"
+                      decoding="sync" 
+                    />
+                </div>
+              );
+           })}
 
            {/* Scrollback Project Flipbook Embed */}
            {project.id === '2' && (
-              <div className="project-image-scroll w-full mt-12 opacity-0 translate-y-12 transition-all duration-[1s] ease-[cubic-bezier(0.16,1,0.3,1)]">
+              <div className="project-image-scroll w-full md:col-span-2 rounded-[3rem] overflow-hidden border-2 border-transparent shadow-lg opacity-0 translate-y-12 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] bg-white aspect-[3/4] md:aspect-[2.5/1]">
                  <iframe 
                     allowFullScreen 
                     allow="clipboard-write" 
                     scrolling="no" 
-                    className="fp-iframe w-full" 
+                    className="fp-iframe w-full h-full" 
                     src="https://heyzine.com/flip-book/60213f805a.html" 
-                    style={{ border: '1px solid lightgray', height: '400px' }}
+                    style={{ border: 'none' }}
                  ></iframe>
-                 
-                 <div className="grid grid-cols-2 gap-8 mt-8 border-t border-black/10 dark:border-white/10 pt-8">
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Year</p>
-                      <p className="text-xl font-black text-black dark:text-white">{project.year}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-[10px] font-black uppercase text-gray-400 tracking-widest">Discipline</p>
-                      <p className="text-xl font-black text-black dark:text-white">{project.category}</p>
-                    </div>
-                 </div>
+              </div>
+           )}
+
+           {/* Illustration Book (Fritz) Project Flipbook Embed */}
+           {project.id === '4' && (
+              <div className="project-image-scroll w-full md:col-span-2 rounded-[3rem] overflow-hidden border-2 border-transparent shadow-lg opacity-0 translate-y-12 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] bg-white aspect-[3/4] md:aspect-[2.5/1]">
+                 <iframe 
+                    allowFullScreen 
+                    allow="clipboard-write" 
+                    scrolling="no" 
+                    className="fp-iframe w-full h-full" 
+                    src="https://heyzine.com/flip-book/3fe4f21212.html" 
+                    style={{ border: 'none' }}
+                 ></iframe>
+              </div>
+           )}
+
+           {/* Morag Magazine Project Flipbook Embed */}
+           {project.id === '3' && (
+              <div className="project-image-scroll w-full md:col-span-2 rounded-[3rem] overflow-hidden border-2 border-transparent shadow-lg opacity-0 translate-y-12 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] bg-white aspect-[3/4] md:aspect-[2.5/1]">
+                 <iframe 
+                    allowFullScreen 
+                    allow="clipboard-write" 
+                    scrolling="no" 
+                    className="fp-iframe w-full h-full" 
+                    src="https://heyzine.com/flip-book/ec66b6d6fd.html" 
+                    style={{ border: 'none' }}
+                 ></iframe>
               </div>
            )}
         </section>
 
         {/* Contact Section */}
-        <section className="contact-reveal w-full bg-black text-white px-6 md:px-12 lg:px-24 py-32 md:py-56 mt-20 opacity-0 translate-y-12 transition-all duration-1000 ease-out">
+        <section className="contact-reveal w-full bg-gray-50 dark:bg-black text-black dark:text-white px-6 md:px-12 lg:px-24 py-32 md:py-56 mt-20 opacity-0 translate-y-12 transition-all duration-1000 ease-out relative z-10">
            <div className="flex flex-col lg:flex-row justify-between items-start gap-20 lg:gap-32">
               <div className="max-w-4xl w-full">
-                 <h2 className="text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.15] tracking-tight text-white m-0 p-0">
+                 <h2 className="text-4xl md:text-6xl lg:text-7xl font-normal leading-[1.15] tracking-tight text-black dark:text-white m-0 p-0">
                     Have a project in mind?<br/>
                     I’d be happy to hear your thoughts<br/>
                     and explore it together.
                  </h2>
               </div>
-              <div className="flex flex-col sm:flex-row gap-24 lg:gap-32 w-full lg:w-auto pt-10 lg:pt-4">
+              <div className="flex flex-row gap-12 sm:gap-24 lg:gap-32 w-full lg:w-auto pt-10 lg:pt-4">
                  <div className="flex flex-col space-y-6">
                     {['Work', 'About', 'Resume'].map(link => (
                        <button 
                         key={link} 
                         onClick={() => handleFooterLinkClick(link)}
-                        className="text-left text-[14px] font-black uppercase tracking-[0.3em] text-white hover:text-gray-400 transition-colors w-fit leading-none"
+                        className="text-left text-[14px] font-black uppercase tracking-[0.3em] text-black dark:text-white hover:text-gray-500 dark:hover:text-gray-400 transition-colors w-fit leading-none"
                        >
                           {link}
                        </button>
@@ -282,7 +393,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
                       { name: 'Linkedin', url: 'https://www.linkedin.com/in/maansi-dhamani-85301a348' },
                       { name: 'Email', url: 'mailto:maansidhamani@gmail.com' }
                     ].map(social => (
-                       <a key={social.name} href={social.url} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 text-[14px] font-black uppercase tracking-widest text-white hover:text-gray-400 transition-colors w-fit leading-none">
+                       <a key={social.name} href={social.url} target="_blank" rel="noopener noreferrer" className="flex items-center space-x-3 text-[14px] font-black uppercase tracking-widest text-black dark:text-white hover:text-gray-500 dark:hover:text-gray-400 transition-colors w-fit leading-none">
                           <span>{social.name}</span>
                           <ArrowUpRight size={14} className="opacity-50" />
                        </a>
@@ -293,7 +404,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
         </section>
 
         {/* Footer Navigation */}
-        <div className="bg-white dark:bg-[#050505] container mx-auto px-6 md:px-12 lg:px-24 pt-32 pb-48 border-t border-black/5 dark:border-white/5 flex flex-col items-center justify-center">
+        <div className="bg-white dark:bg-[#050505] container mx-auto px-6 md:px-12 lg:px-24 pt-32 pb-48 border-t border-black/5 dark:border-white/5 flex flex-col items-center justify-center relative z-10">
           <button 
              onClick={scrollToTop}
              className="group relative w-20 h-20 md:w-24 md:h-24 bg-black dark:bg-white text-white dark:text-black rounded-full flex items-center justify-center transition-all duration-700 hover:scale-110 active:scale-95 shadow-2xl overflow-hidden"
@@ -308,9 +419,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
           opacity: 1 !important;
           transform: translateY(0) !important;
         }
-        .scroll-smooth {
-          scroll-behavior: smooth;
-        }
+        /* Removed scroll-smooth from container logic */
       `}</style>
     </div>
   );

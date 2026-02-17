@@ -18,7 +18,7 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category, onBack, onProject
   const filteredProjects = PROJECTS.filter(p => p.category === category);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black pt-32 pb-20 px-6 md:px-12 lg:px-24">
+    <div className="min-h-screen bg-transparent pt-32 pb-20 px-6 md:px-12 lg:px-24 overflow-x-hidden w-full">
        {/* Header with Title and Back */}
        <div className="mb-24">
           <div className="flex items-center space-x-4 mb-10">
@@ -46,11 +46,12 @@ const CategoryPage: React.FC<CategoryPageProps> = ({ category, onBack, onProject
                 className="group cursor-pointer space-y-8"
                 onClick={() => onProjectClick(project)}
              >
-                <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-white/5 rounded-sm">
+                <div className="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-white/5 rounded-2xl">
                    <img 
                       src={project.thumbnail} 
                       alt={project.title} 
                       className="w-full h-full object-cover transition-all duration-[1.2s] ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-105"
+                      style={project.thumbnailStyle}
                    />
                    <div className="absolute top-6 right-6 w-12 h-12 bg-white dark:bg-black text-black dark:text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-xl">
                       <ArrowUpRight size={20} />

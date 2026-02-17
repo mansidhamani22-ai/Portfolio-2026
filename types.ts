@@ -1,4 +1,6 @@
 
+import { CSSProperties } from 'react';
+
 export enum ViewType {
   CHAT = 'chat',
   IMAGE = 'image',
@@ -6,7 +8,7 @@ export enum ViewType {
   GALLERY = 'gallery'
 }
 
-export type Category = 'All' | 'Packaging Design' | 'Branding' | 'Publication Design';
+export type Category = 'All' | 'Packaging Design' | 'Branding' | 'Publication & Editorial Design';
 
 export interface Project {
   id: string;
@@ -18,6 +20,7 @@ export interface Project {
   images: string[];
   tools: string[];
   year: string;
+  thumbnailStyle?: CSSProperties;
 }
 
 export interface ChatMessage {

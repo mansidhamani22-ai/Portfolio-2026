@@ -3,7 +3,7 @@
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Maansi Dhamani | Visual Communication Student</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -46,6 +46,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@100;200;300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Pinyon+Script&family=Caveat:wght@400;500;600;700&family=JetBrains+Mono:wght@300&display=swap" rel="stylesheet">
     <style>
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
+            /* Prevent horizontal rubber-banding but allow vertical scrolling */
+            overscroll-behavior-x: none;
+        }
         body {
             transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1), color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }

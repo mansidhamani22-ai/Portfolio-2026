@@ -16,7 +16,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
   const fallbackImage = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=1000&auto=format&fit=crop";
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white pt-32 pb-20 transition-colors duration-500">
+    <div className="min-h-screen bg-transparent pt-32 pb-20 transition-colors duration-500">
       <div className="container mx-auto px-6 md:px-12 lg:px-16 h-full flex flex-col">
         
         {/* Header Section */}

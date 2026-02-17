@@ -8,10 +8,11 @@ import CategoryPage from './components/CategoryPage';
 import WorkGalleryPage from './components/WorkGalleryPage';
 import RubikCubeTransition from './components/RubikCubeTransition';
 import PenToolBackground from './components/PenToolBackground';
+import StarField from './components/StarField';
 import { PROJECTS } from './constants';
 import { Category, Project } from './types';
 import { 
-  ArrowUp, Info, Loader2, SkipForward, SkipBack, Moon, Sun, Mail, ArrowUpRight, ArrowRight
+  ArrowUp, Info, Loader2, SkipForward, SkipBack, Moon, Sun, Mail, ArrowUpRight
 } from 'lucide-react';
 
 const TRACKS = [
@@ -43,9 +44,16 @@ const PaperFilter = () => (
   </svg>
 );
 
-/* -------------------------------------------------------------------------- */
-/*                                3D CARD COMPONENT                           */
-/* -------------------------------------------------------------------------- */
+const BackgroundTexture = () => (
+  <div className="fixed inset-0 z-[50] pointer-events-none mix-blend-overlay">
+    <div 
+      className="absolute inset-0 opacity-[0.04] dark:opacity-[0.07]"
+      style={{ 
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")`,
+      }} 
+    />
+  </div>
+);
 
 interface CategoryCardProps {
   category: string;
@@ -55,9 +63,10 @@ interface CategoryCardProps {
   year: string;
   onClick: () => void;
   onHover: () => void;
+  imageStyle?: React.CSSProperties;
 }
 
-const CategoryCard: React.FC<CategoryCardProps> = ({ category, customTitle, image, index, year, onClick, onHover }) => {
+const CategoryCard: React.FC<CategoryCardProps> = ({ category, customTitle, image, index, year, onClick, onHover, imageStyle }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
@@ -94,14 +103,13 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, customTitle, imag
       onMouseLeave={handleMouseLeave}
     >
       {/* 3D Image Container - STRICT ASPECT SQUARE USING PADDING HACK */}
-      {/* pt-[100%] forces the height to match the width exactly */}
       <div 
         className="w-full pt-[100%] relative perspective-[1200px]"
         onMouseMove={handleMouseMove}
       >
         <div 
           ref={cardRef}
-          className="absolute inset-0 w-full h-full transition-all duration-300 ease-out transform-style-3d rounded-sm overflow-hidden border border-black/5 dark:border-white/5 bg-gray-100 dark:bg-[#111]"
+          className="absolute inset-0 w-full h-full transition-all duration-100 ease-out transform-style-3d rounded-2xl overflow-hidden border border-black/5 dark:border-white/5 bg-gray-100 dark:bg-[#111]"
           style={{
             transform: `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
           }}
@@ -111,18 +119,11 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, customTitle, imag
                src={image} 
                alt={customTitle || category} 
                className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+               style={imageStyle}
             />
 
             {/* Gloss/Sheen */}
             <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none mix-blend-overlay" />
-
-            {/* Number Badge */}
-            <div 
-               className="absolute top-4 left-4 w-8 h-8 rounded-full bg-black/20 backdrop-blur-md border border-white/20 flex items-center justify-center text-white font-black text-xs z-20"
-               style={{ transform: 'translateZ(20px)' }}
-            >
-               0{index + 1}
-            </div>
         </div>
       </div>
 
@@ -147,23 +148,26 @@ const CategoryCard: React.FC<CategoryCardProps> = ({ category, customTitle, imag
 };
 
 const ViewAllCard: React.FC<{ onClick: () => void, onHover: () => void }> = ({ onClick, onHover }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
     return (
         <div className="w-full flex flex-col gap-5">
             <div 
                 className="w-full pt-[100%] relative group cursor-pointer perspective-[1200px]"
                 onClick={onClick}
-                onMouseEnter={onHover}
+                onMouseEnter={() => { setIsHovered(true); onHover(); }}
+                onMouseLeave={() => setIsHovered(false)}
             >
-                <div className="absolute inset-0 w-full h-full transition-all duration-300 ease-out transform-style-3d rounded-sm bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 group-hover:-translate-y-2 shadow-xl overflow-hidden flex flex-col items-center justify-center gap-6">
+                <div className="absolute inset-0 w-full h-full transition-all duration-100 ease-out transform-style-3d rounded-2xl bg-white dark:bg-[#111] border border-black/10 dark:border-white/10 group-hover:-translate-y-2 shadow-xl overflow-hidden flex flex-col items-center justify-center gap-6">
                      
                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                      <div className="relative z-10 w-24 h-24 rounded-full border-2 border-black dark:border-white flex items-center justify-center transition-all duration-500 group-hover:bg-black group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-black">
-                         <ArrowRight size={40} className="transition-transform duration-500 group-hover:translate-x-1" />
+                         <ArrowUpRight size={40} className="transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1" />
                      </div>
                      
                      <span className="relative z-10 text-sm font-black uppercase tracking-[0.2em] text-black dark:text-white group-hover:tracking-[0.3em] transition-all duration-500">
-                        View All
+                        {isHovered ? "YAYY!" : "See More"}
                      </span>
                 </div>
             </div>
@@ -172,11 +176,6 @@ const ViewAllCard: React.FC<{ onClick: () => void, onHover: () => void }> = ({ o
         </div>
     );
 };
-
-
-/* -------------------------------------------------------------------------- */
-/*                                MAIN APP                                    */
-/* -------------------------------------------------------------------------- */
 
 const Controls: React.FC<{ 
   theme: 'light' | 'dark', 
@@ -408,8 +407,8 @@ const IDCard = () => {
     <div className="absolute inset-0 z-10 flex justify-center pt-0 pointer-events-none perspective-[1200px]">
       <div className="origin-top animate-[dropSwing_2.5s_ease-out_forwards] flex flex-col items-center">
         
-        {/* Strap - Black - Responsive Height */}
-        <div className="w-[42px] h-[15vh] md:h-[35vh] bg-[#050505] relative z-20 flex flex-col items-center shadow-2xl">
+        {/* Strap - Black - Responsive Height - ADJUSTED HEIGHTS */}
+        <div className="w-[42px] h-[12vh] md:h-[18vh] lg:h-[30vh] bg-[#050505] relative z-20 flex flex-col items-center shadow-2xl">
              <div className="absolute inset-0 opacity-[0.2] bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] pointer-events-none"></div>
              <div className="absolute inset-y-0 left-0 w-[1px] bg-white/20"></div>
              <div className="absolute inset-y-0 right-0 w-[1px] bg-white/20"></div>
@@ -446,17 +445,36 @@ const IDCard = () => {
             <div className="relative -mt-[30px] mx-auto z-20">
                 <div className="w-[300px] h-[480px] bg-[#080808] rounded-[20px] shadow-[0_30px_60px_rgba(0,0,0,0.6)] flex flex-col relative overflow-hidden animate-[card3D_8s_ease-in-out_infinite_alternate] transform-style-3d border border-white/10">
                     
-                    {/* Background Graphic */}
-                    <div className="absolute inset-0 pointer-events-none mix-blend-plus-lighter opacity-60">
-                         <svg width="100%" height="100%" viewBox="0 0 300 480" preserveAspectRatio="none">
-                            <filter id="blur">
-                                <feGaussianBlur stdDeviation="15" />
-                            </filter>
-                            <path d="M-50,120 C50,60 150,180 200,100 S350,120 350,180" fill="none" stroke="white" strokeWidth="30" filter="url(#blur)" opacity="0.3" />
-                            <path d="M-50,280 C50,220 150,340 200,260 S350,280 350,340" fill="none" stroke="white" strokeWidth="30" filter="url(#blur)" opacity="0.25" />
-                            <path d="M-50,440 C50,380 150,500 200,420 S350,440 350,500" fill="none" stroke="white" strokeWidth="30" filter="url(#blur)" opacity="0.3" />
+                    {/* Background Texture - Spray Paint Effect */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+                         {/* Noise Grain */}
+                         <div className="absolute inset-0 opacity-[0.12] mix-blend-overlay" 
+                              style={{ 
+                                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E")`,
+                              }} 
+                         ></div>
+                         
+                         {/* Spray Paint SVG */}
+                         <svg width="100%" height="100%" viewBox="0 0 300 480" className="absolute inset-0 overflow-visible opacity-70 mix-blend-screen">
+                            <defs>
+                                <filter id="sprayBlur" x="-50%" y="-50%" width="200%" height="200%">
+                                    <feGaussianBlur stdDeviation="20" result="blur" />
+                                    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
+                                    <feDisplacementMap in="blur" in2="noise" scale="30" xChannelSelector="R" yChannelSelector="G" />
+                                </filter>
+                                <linearGradient id="sprayGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                     <stop offset="0%" stopColor="#ff3f34" />
+                                     <stop offset="50%" stopColor="#ff9f43" />
+                                     <stop offset="100%" stopColor="#ef5777" />
+                                </linearGradient>
+                            </defs>
+                            
+                            <g filter="url(#sprayBlur)">
+                                <path d="M -20 120 C 80 20, 220 120, 150 220 C 80 320, 200 400, 320 300" stroke="url(#sprayGrad)" strokeWidth="80" fill="none" strokeLinecap="round" />
+                                <circle cx="220" cy="180" r="60" fill="#ff5e57" opacity="0.5" />
+                                <path d="M 50 350 Q 150 450 250 350" stroke="#ff3f34" strokeWidth="40" fill="none" strokeLinecap="round" opacity="0.6" />
+                            </g>
                          </svg>
-                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20"></div>
                     </div>
 
                     <div className="absolute top-6 left-1/2 -translate-x-1/2 w-14 h-3 bg-[#080808] rounded-full border border-white/10 shadow-inner z-30"></div>
@@ -506,7 +524,7 @@ const IDCard = () => {
                             <div className="flex justify-between items-end">
                                 <div>
                                     <p className="text-[9px] font-mono text-white/40 uppercase tracking-widest mb-1">Discipline</p>
-                                    <p className="text-xs font-bold text-white tracking-tight font-mono">Visual Communication Designer</p>
+                                    <p className="text-[11px] font-bold text-white tracking-tight font-mono">Visual Communication Designer</p>
                                 </div>
                             </div>
                         </div>
@@ -534,7 +552,7 @@ const IDCard = () => {
         }
       `}</style>
     </div>
-  )
+  );
 }
 
 const Preloader: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
@@ -598,6 +616,12 @@ export default function App() {
   const [rawScrollY, setRawScrollY] = useState(0);
   const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
   const [isTransitioningWork, setIsTransitioningWork] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
@@ -647,6 +671,14 @@ export default function App() {
   }, [checkReveals]);
 
   useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       checkReveals();
     }, 300);
@@ -659,7 +691,7 @@ export default function App() {
     else root.classList.remove('dark');
     localStorage.setItem('theme', theme);
   }, [theme]);
-
+  
   const handleProjectClick = (project: Project) => {
     setSelectedProject(project);
     setIsModalOpen(true);
@@ -724,9 +756,11 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black text-black dark:text-white transition-colors duration-[0.8s]">
+    <div className="min-h-screen bg-white dark:bg-[#050505] text-black dark:text-white transition-colors duration-[0.8s]">
       <PaperFilter />
+      <StarField />
       <PenToolBackground theme={theme} />
+      <BackgroundTexture />
       
       <div className="fixed top-0 left-0 w-full h-[3px] z-[1200] bg-gray-100 dark:bg-white/5">
         <div className="h-full bg-orange-500 transition-all duration-300" style={{ width: `${globalScroll}%` }} />
@@ -739,12 +773,11 @@ export default function App() {
       
       <button 
         onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className={`fixed left-1/2 -translate-x-1/2 bottom-12 z-[1100] flex items-center justify-center w-16 h-16 bg-black dark:bg-white text-white dark:text-black rounded-full shadow-2xl transition-all duration-500 border border-white/10 dark:border-black/10 hover:scale-110 active:scale-95 ${globalScroll > 15 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16 pointer-events-none'}`}
+        className={`fixed right-6 md:right-10 bottom-28 z-[1100] flex items-center justify-center w-12 h-12 bg-black dark:bg-white text-white dark:text-black rounded-full shadow-2xl transition-all duration-500 border border-white/10 dark:border-black/10 hover:scale-110 active:scale-95 ${globalScroll > 15 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
       >
-        <ArrowUp size={24} />
+        <ArrowUp size={20} />
       </button>
 
-      {/* Special Transition Component */}
       {isTransitioningWork && (
           <RubikCubeTransition projects={PROJECTS} onComplete={completeWorkTransition} />
       )}
@@ -753,7 +786,7 @@ export default function App() {
       
       <div 
         id="page-transition-wrapper"
-        className={`view-transition flex flex-col min-h-screen transition-opacity duration-1000 ${viewState === 'ready' && !isTransitioningWork ? 'opacity-100' : 'opacity-0'}`}
+        className={`relative z-10 view-transition flex flex-col min-h-screen transition-opacity duration-1000 ${viewState === 'ready' && !isTransitioningWork ? 'opacity-100' : 'opacity-0'}`}
       >
         <Header 
           onContactClick={() => scrollToSection('contact')} 
@@ -768,37 +801,47 @@ export default function App() {
         <main className="flex-1">
           {activeView === 'home' && (
             <div className="home-view">
-              <section id="home" className="relative flex items-center min-h-screen pt-20 pb-20 overflow-hidden">
+              <section id="home" className="relative flex items-center min-h-screen pt-20 pb-20 overflow-x-hidden">
                   <div className="container mx-auto px-6 md:px-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
                     
-                    <div className="relative h-[550px] md:h-[60vh] w-full pointer-events-none flex justify-center order-first lg:order-none">
-                       {viewState === 'ready' && (
-                         <div className="scale-[0.8] md:scale-100 origin-top w-full h-full flex justify-center">
+                    {/* ADJUSTED CONTAINER HEIGHT FOR SMALLER SCREENS */}
+                    <div className="relative h-[550px] md:h-[650px] lg:h-[80vh] w-full pointer-events-none flex justify-center order-first lg:order-none">
+                      {viewState === 'ready' && (
+                        /* ADJUSTED SCALING */
+                        <div className="scale-[0.8] md:scale-[0.85] lg:scale-100 origin-top w-full h-full flex justify-center">
                             <IDCard />
-                         </div>
-                       )}
+                        </div>
+                      )}
                     </div>
 
-                    <div className="flex flex-col justify-center space-y-8 z-10 reveal-from-top delay-500">
-                      <div className="space-y-4">
-                        <h2 className="text-3xl md:text-5xl lg:text-6xl font-light leading-[1.1] text-black dark:text-white">
-                            I see design as a way of <span className="font-serif italic text-orange-500">thinking</span>.
-                        </h2>
-                        <p className="text-lg md:text-2xl font-light text-gray-500 leading-relaxed max-w-xl">
-                            Each project is a balance of intent and exploration. I’m interested in how visuals communicate, evoke emotion and create understanding.
-                        </p>
-                      </div>
+                    <div className="flex flex-col justify-center space-y-8 z-10 perspective-[1000px]">
+                      {viewState === 'ready' && (
+                        <div className="origin-top animate-[dropText_2s_ease-out_both]" style={{ animationDelay: '0.2s' }}>
+                          <div className="space-y-4">
+                            <h2 className="text-lg md:text-2xl lg:text-3xl font-light leading-[1.1] text-black dark:text-white text-justify hyphens-auto">
+                                I treat design as a space to <span className="font-serif italic text-orange-500">explore and solve</span> at the same time.
+                            </h2>
+                            <p className="text-base md:text-lg font-light text-gray-500 leading-relaxed max-w-xl text-justify hyphens-auto">
+                                I like work that balances clarity with play, structure with experimentation. The goal is always to create visuals that not only look strong but feel meaningful to the people engaging with them.
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
               </section>
 
-              <section id="works" className="bg-white dark:bg-black pt-24 md:pb-48 overflow-hidden">
+              <section id="works" className="bg-transparent pt-24 md:pb-48 overflow-hidden">
                 <div className="w-full px-4 md:px-6">
                   <div className="flex justify-between items-end mb-12 md:mb-20 reveal pr-2 md:pr-12">
                       <div className="flex flex-col">
                           <h2 
                             className="text-6xl sm:text-8xl md:text-[10vw] font-black uppercase tracking-tighter leading-[0.9] dzinr-text text-black dark:text-white transition-transform duration-75 ease-out will-change-transform origin-left"
-                            style={{ transform: `scaleX(${1 + Math.max(0, (rawScrollY - 200) * 0.002)})` }}
+                            style={{ 
+                                transform: isMobile 
+                                    ? 'none' 
+                                    : `scaleX(${Math.min(1.65, 1 + Math.max(0, (rawScrollY - 50) * 0.0008))})` 
+                            }}
                           >
                             Projects.
                           </h2>
@@ -812,7 +855,7 @@ export default function App() {
                           className={`flex-shrink-0 w-[70vw] md:w-[35vw] lg:w-[30vw] snap-center card-wrapper reveal-card card-${i}`}
                           style={{ transitionDelay: `${i * 100}ms` }}
                         >
-                           <CategoryCard
+                          <CategoryCard
                               category={project.category}
                               customTitle={project.title}
                               image={project.thumbnail}
@@ -820,7 +863,8 @@ export default function App() {
                               year={project.year}
                               onClick={() => handleProjectClick(project)}
                               onHover={() => playTick()}
-                           />
+                              imageStyle={project.thumbnailStyle}
+                          />
                         </div>
                       ))}
                       
@@ -829,8 +873,8 @@ export default function App() {
                           style={{ transitionDelay: '300ms' }}
                       >
                           <ViewAllCard 
-                             onClick={initiateWorkTransition}
-                             onHover={() => playTick()}
+                            onClick={initiateWorkTransition}
+                            onHover={() => playTick()}
                           />
                       </div>
                       
@@ -865,7 +909,7 @@ export default function App() {
           )}
         </main>
 
-        <footer id="contact" className="bg-white dark:bg-black pt-32 pb-24 border-t border-black/5 dark:border-white/5">
+        <footer id="contact" className="bg-transparent pt-32 pb-24 border-t border-black/5 dark:border-white/5">
           <div className="container mx-auto px-6 md:px-12 lg:px-16 reveal">
             <div className="mb-12">
               <p className="text-[13px] font-normal tracking-[0.1em] text-gray-400 leading-relaxed max-w-lg">
@@ -893,6 +937,18 @@ export default function App() {
           onScrollTick={playTick}
           onNavigate={handleNavigate}
         />
+      </div>
+
+      {/* Hidden Asset Preloader - Forces browser to download/cache all project images immediately */}
+      <div aria-hidden="true" style={{ position: 'absolute', width: '1px', height: '1px', overflow: 'hidden', opacity: 0, pointerEvents: 'none', zIndex: -1000, left: 0, top: 0 }}>
+          {PROJECTS.map((project) => (
+             <React.Fragment key={project.id}>
+                {project.thumbnail && <img src={project.thumbnail} alt="" loading="eager" decoding="sync" />}
+                {project.images?.map((img, i) => (
+                   <img key={`${project.id}-img-${i}`} src={img} alt="" loading="eager" decoding="sync" />
+                ))}
+             </React.Fragment>
+          ))}
       </div>
 
       <style>{`
@@ -968,6 +1024,14 @@ export default function App() {
         .card-wrapper.reveal-card.active {
              opacity: 1;
              transform: translateY(0) scale(1);
+        }
+
+        @keyframes dropText {
+            0% { transform: translateY(-100vh) rotate(-2deg); }
+            40% { transform: translateY(10px) rotate(1deg); }
+            60% { transform: translateY(-5px) rotate(-0.5deg); }
+            80% { transform: translateY(2px) rotate(0.25deg); }
+            100% { transform: translateY(0) rotate(0deg); }
         }
       `}</style>
     </div>

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Project } from '../types';
 
 interface RubikCubeTransitionProps {
@@ -8,116 +8,169 @@ interface RubikCubeTransitionProps {
 }
 
 const RubikCubeTransition: React.FC<RubikCubeTransitionProps> = ({ projects, onComplete }) => {
-  const [phase, setPhase] = useState<'enter' | 'spin' | 'exit'>('enter');
+  const [phase, setPhase] = useState<'spin' | 'exit'>('spin');
+  
+  // Responsive card dimensions
+  const [cardDims, setCardDims] = useState(() => {
+    if (typeof window !== 'undefined') {
+       const isMobile = window.innerWidth < 768;
+       return isMobile ? { w: 140, h: 200, gap: 15, zoom: 2.2 } : { w: 300, h: 400, gap: 40, zoom: 1.6 };
+    }
+    return { w: 300, h: 400, gap: 40, zoom: 1.6 };
+  });
 
   useEffect(() => {
-    // Phase 1: Enter (Zoom In)
-    
-    // Phase 2: Spin - Start almost immediately
+    const handleResize = () => {
+        const isMobile = window.innerWidth < 768;
+        setCardDims(isMobile 
+          ? { w: 140, h: 200, gap: 15, zoom: 2.2 } 
+          : { w: 300, h: 400, gap: 40, zoom: 1.6 }
+        );
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    // 1. Spin briefly then start exiting
+    // INCREASED DURATION: Allow cylinder to spin longer (1.5s) to establish the visual before exiting
+    // This addresses the "speed of loading" feeling too fast or janky.
     const spinTimer = setTimeout(() => {
-      setPhase('spin');
-    }, 50); 
-
-    // Phase 3: Exit (Dissolve) - Trigger after one full rotation (1.5s)
-    const exitTimer = setTimeout(() => {
       setPhase('exit');
-    }, 1550); // 50ms delay + 1500ms rotation
+    }, 1500);
 
-    // Complete
+    // 2. Complete transition
+    // INCREASED TOTAL DURATION: 1.5s spin + 1.2s exit transition + buffer = ~2.8s
     const completeTimer = setTimeout(() => {
       onComplete();
-    }, 2350); // 1550ms + 800ms transition
+    }, 2800); 
 
     return () => {
       clearTimeout(spinTimer);
-      clearTimeout(exitTimer);
       clearTimeout(completeTimer);
     };
   }, [onComplete]);
 
-  // Helper to get project image
-  const getImage = (i: number) => {
-    if (!projects || projects.length === 0) return '';
-    const p = projects[i % projects.length];
-    return p.thumbnail;
-  };
+  // Cylinder setup
+  const { items, radius, angleStep } = useMemo(() => {
+    // 1. Get base items
+    const validProjects = projects
+        .filter(p => p.thumbnail)
+        .map(p => ({ ...p }));
 
-  const faces = [
-    { name: 'front', rotate: 'rotateY(0deg)' },
-    { name: 'back', rotate: 'rotateY(180deg)' },
-    { name: 'right', rotate: 'rotateY(90deg)' },
-    { name: 'left', rotate: 'rotateY(-90deg)' },
-    { name: 'top', rotate: 'rotateX(90deg)' },
-    { name: 'bottom', rotate: 'rotateX(-90deg)' },
-  ];
+    if (validProjects.length === 0) return { items: [], radius: 0, angleStep: 0 };
+    
+    // 2. Duplicate until we have enough for a nice dense cylinder
+    // Increased minimum count to ensure no gaps appear during fast rotation
+    let list = [...validProjects];
+    while (list.length < 16) {
+        list = [...list, ...validProjects];
+    }
+    // Cap at a reasonable number to avoid massive radius that might clip with perspective
+    if (list.length > 24) list = list.slice(0, 24);
+
+    const count = list.length;
+    
+    // 3. Calculate Geometry
+    const cardWidth = cardDims.w; 
+    const gap = cardDims.gap; 
+    
+    // Radius of the cylinder
+    const r = Math.round( ((cardWidth + gap) * count) / (2 * Math.PI) );
+    
+    return { 
+        items: list, 
+        radius: r,
+        angleStep: 360 / count
+    };
+  }, [projects, cardDims]);
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center overflow-hidden perspective-[1500px]">
+    <div className="fixed inset-0 z-[9999] bg-black flex items-center justify-center overflow-hidden">
       
-      {/* Background Particles/Stars for depth */}
-      <div className={`absolute inset-0 transition-opacity duration-1000 ${phase === 'exit' ? 'opacity-0' : 'opacity-100'}`}>
-         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 animate-pulse"></div>
-      </div>
-
+      {/* 3D Scene */}
       <div 
-        className={`cube-container relative w-[200px] h-[200px] md:w-[250px] md:h-[250px] transform-style-3d transition-all duration-[800ms] ease-in-out ${
-          phase === 'enter' ? 'scale-75 opacity-0 translate-z-[-200px]' : 
-          phase === 'spin' ? 'scale-100 opacity-100 translate-z-[0px]' : 
-          'scale-110 opacity-0 translate-z-[100px] blur-sm'
-        }`}
+        className="relative w-full h-full flex items-center justify-center"
+        style={{ perspective: '3000px' }} 
       >
-        <div className="cube w-full h-full absolute transform-style-3d animate-cube-spin">
-          {faces.map((face, index) => (
-            <div
-              key={face.name}
-              className="absolute w-full h-full bg-black border border-white/20 backface-hidden overflow-hidden shadow-[0_0_50px_rgba(255,255,255,0.1)]"
-              style={{
-                '--rotate': face.rotate
-              } as React.CSSProperties}
-            >
-                <div className="w-full h-full relative">
-                    <img 
-                        src={getImage(index)} 
-                        alt="" 
-                        className="w-full h-full object-cover filter contrast-125"
-                    />
-                    {/* Cinematic Gloss Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-white/20 pointer-events-none"></div>
-                    {/* Inner Border */}
-                    <div className="absolute inset-0 border-[0.5px] border-white/30 opacity-50 pointer-events-none"></div>
-                </div>
-            </div>
-          ))}
-        </div>
+          {/* Mover Wrapper: Moves the whole cylinder off-screen to the LEFT during exit */}
+          <div 
+            className={`transform-style-3d will-change-transform transition-transform duration-[1200ms] ease-in ${phase === 'exit' ? 'translate-x-[-150vw]' : 'translate-x-0'}`}
+          >
+              {/* Rotating Cylinder Container */}
+              <div 
+                className="relative transform-style-3d animate-spin-cylinder will-change-transform"
+              >
+                 {items.map((project, i) => {
+                     const angle = i * angleStep;
+
+                     return (
+                         <div 
+                            key={i}
+                            className="absolute top-1/2 left-1/2 backface-hidden"
+                            style={{
+                                width: `${cardDims.w}px`,
+                                height: `${cardDims.h}px`,
+                                marginLeft: `-${cardDims.w / 2}px`, 
+                                marginTop: `-${cardDims.h / 2}px`,
+                                transform: `rotateY(${angle}deg) translateZ(${radius}px)`,
+                            }}
+                         >
+                             {/* Inner Content */}
+                             <div 
+                                className="w-full h-full"
+                                style={{
+                                    // Reflection
+                                    WebkitBoxReflect: 'below 10px linear-gradient(transparent 50%, rgba(255,255,255,0.2))'
+                                }}
+                             >
+                                 <div className="w-full h-full bg-[#111] border border-white/20 overflow-hidden shadow-2xl rounded-md">
+                                     <img 
+                                        src={project.thumbnail} 
+                                        className="w-full h-full object-cover"
+                                        alt=""
+                                        loading="eager"
+                                        style={{
+                                            ...project.thumbnailStyle,
+                                            imageRendering: 'auto'
+                                        }}
+                                     />
+                                     {/* Gloss Overlay */}
+                                     <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-black/60 pointer-events-none mix-blend-overlay"></div>
+                                 </div>
+                             </div>
+                         </div>
+                     );
+                 })}
+              </div>
+          </div>
       </div>
+      
+      {/* Vignette */}
+      <div className="absolute inset-0 bg-radial-gradient from-transparent via-black/40 to-black pointer-events-none" />
 
       <style>{`
         .transform-style-3d {
-          transform-style: preserve-3d;
+            transform-style: preserve-3d;
         }
+        /* Hide backfaces to prevent Z-fighting and overlapping rear cards */
         .backface-hidden {
-          backface-visibility: hidden;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
-        
-        /* Dynamic translation based on container size (half of width) */
-        .cube > div {
-            transform: var(--rotate) translateZ(100px);
+        .backface-visible {
+            backface-visibility: visible;
         }
-        @media (min-width: 768px) {
-            .cube > div {
-                transform: var(--rotate) translateZ(125px);
-            }
+        @keyframes spin-cylinder {
+            0% { transform: translateZ(-${radius * cardDims.zoom}px) rotateY(0deg); }
+            100% { transform: translateZ(-${radius * cardDims.zoom}px) rotateY(-360deg); }
         }
-
-        @keyframes cube-spin {
-          0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
-          25% { transform: rotateX(90deg) rotateY(90deg) rotateZ(0deg); }
-          50% { transform: rotateX(180deg) rotateY(180deg) rotateZ(90deg); }
-          75% { transform: rotateX(270deg) rotateY(270deg) rotateZ(180deg); }
-          100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(360deg); }
+        .animate-spin-cylinder {
+            /* Slower speed (2.5s) to reduce motion blur and rendering load */
+            animation: spin-cylinder 2.5s linear infinite; 
         }
-        .animate-cube-spin {
-          animation: cube-spin 1.5s ease-in-out forwards;
+        .bg-radial-gradient {
+            background: radial-gradient(circle, transparent 30%, black 100%);
         }
       `}</style>
     </div>

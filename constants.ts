@@ -5,12 +5,16 @@ export const PROJECTS: Project[] = [
   {
     id: '2',
     title: 'Scrollback —\nIs 2026\nThe New 2016?',
-    category: 'Publication Design',
+    category: 'Publication & Editorial Design',
     description: 'A speculative magazine exploring why 2016 continues to feel emotionally closer than the present.',
     fullDescription: 'Scrollback is a speculative magazine exploring why 2016 continues to feel emotionally closer than the present. Through visual nostalgia, internet memory, and cultural reflection, the project examines our collective urge to rewind time. It questions whether we miss the year itself or the feeling of a softer, slower internet.',
     thumbnail: 'https://drive.google.com/thumbnail?id=1j0LjL0Exo1WTC_BBnvp_5RfnrjS-Hde-&sz=w1000',
     images: [
-      'https://drive.google.com/thumbnail?id=1wCDV0SMiYi8CljAOTV5gae6gdpsrusGg&sz=w3000'
+      'https://drive.google.com/thumbnail?id=19tlnYCyMMThe7JMNPhNSV13VV_lUEUKf&sz=w800', // 1st Square
+      'https://drive.google.com/thumbnail?id=1TJJQ9HoeyxA93hm09s1In2f755r6dg6p&sz=w800', // 2nd Square (Restored to valid project image)
+      'https://drive.google.com/thumbnail?id=13m4e89vk5fP2OJT8QkIl9KxxIcIuG6hA&sz=w1200', // Rectangle Image
+      'https://drive.google.com/thumbnail?id=1TJJQ9HoeyxA93hm09s1In2f755r6dg6p&sz=w800', // 3rd Square
+      'https://drive.google.com/thumbnail?id=1Zwf9lu7sJote-GyNsIhbDqwHUHUFw0QR&sz=w800', // 4th Square
     ],
     tools: ['Adobe InDesign', 'Photoshop'],
     year: '2026'
@@ -23,7 +27,9 @@ export const PROJECTS: Project[] = [
     fullDescription: 'They reimagine the Fanta can as a bold expression of fun, flavour, and youthful energy. The design focuses on vibrant colours and expressive typography to capture the brand’s playful spirit while standing out in a crowded beverage market. By blending strong visual identity with contemporary graphic language, the project presents Fanta as fresh, dynamic, and culturally relevant for a new generation of consumers.',
     thumbnail: 'https://drive.google.com/thumbnail?id=1oN8H-aJAbdh6T7AFlRq905cKNoQH440_&sz=w1000',
     images: [
-      'https://drive.google.com/thumbnail?id=1OUoiNkKqt1ioFjqrCdJ3lywtUAIaMtws&sz=w3000'
+      'https://drive.google.com/thumbnail?id=1-sVpWapXvGWzA-rbM9YKrgYnLIpWV4Aq&sz=w1920', // Main Fanta Rectangle
+      'https://drive.google.com/thumbnail?id=1oN8H-aJAbdh6T7AFlRq905cKNoQH440_&sz=w1000', // 1st Square
+      'https://drive.google.com/thumbnail?id=13iEMPyzzHHYZe7941Tg_TMWifeMNTQwU&sz=w1000', // 2nd Square (Updated)
     ],
     tools: ['Adobe Illustrator'],
     year: '2025'
@@ -31,19 +37,32 @@ export const PROJECTS: Project[] = [
   {
     id: '4',
     title: 'Illustration\nBook Design',
-    category: 'Publication Design',
-    description: 'A study in material storytelling and typographic architecture within physical forms.',
-    fullDescription: 'CHALLENGE: Conceptualize a narrative book that explores architectural forms through paper engineering. SOLUTION: I developed "STRUCTURA", a limited-edition artist book where each page fold mimics a specific brutalist monument. The typography is carved into the paper using laser cutting, allowing light to cast shadows that become part of the reading experience.',
+    category: 'Publication & Editorial Design',
+    description: 'A visual interpretation of Satyajit Ray’s short story, blending childhood wonder with atmospheric storytelling.',
+    fullDescription: 'Fritz is an illustrated book that visually interprets Satyajit Ray’s short story through a lens of childhood wonder and introspection. The project translates narrative moments into hand-drawn illustrations, using restrained colour palettes and subtle compositions to evoke memory, curiosity, and quiet emotion. By blending visual storytelling with atmosphere-driven design, the book creates a contemplative space where imagination and reality softly intersect.',
     thumbnail: 'https://drive.google.com/thumbnail?id=19DxRJWW0rkEEmiDVWE6fRTFGmk4Ay9DR&sz=w1000',
+    thumbnailStyle: { objectPosition: 'center top' },
     images: [
-      'https://images.unsplash.com/photo-1586717791821-3f44a563eb4c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1551650975-87deedd944c3?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1612810806563-4cb50055dc6b?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1561070791-2526d30994b5?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&auto=format&fit=crop'
+      'https://drive.google.com/thumbnail?id=1RKUkVuc__ShVOY8mJwxUjb-Xu3GKJYic&sz=w1920', // Main Rectangle
+      'https://drive.google.com/thumbnail?id=1ZTpqlzuNpyXWe8Z1lEReDQwviK0jHyRG&sz=w1000', // Square 1
+      'https://drive.google.com/thumbnail?id=18OWyrbQmJAqNZd7OxE9ZkEHI7Q5NWRZM&sz=w1000', // Square 2 (Updated)
     ],
     tools: ['InDesign', 'Procreate'],
+    year: '2025'
+  },
+  {
+    id: '3',
+    title: 'Morag Myercough\nMagazine',
+    category: 'Publication & Editorial Design',
+    description: 'Redefining the print-to-digital transition with high-contrast editorial layouts.',
+    fullDescription: 'This magazine project is based on an in-depth study of Morag Myerscough’s design philosophy, visual language, and body of work. The research focused on analysing her use of colour, pattern, typography, and spatial storytelling across key projects. Insights from this study were translated into experimental editorial layouts, typographic explorations, and bold visual systems that reflect her expressive approach. The final magazine functions as both a research outcome and a design interpretation, demonstrating how analytical study can inform creative editorial design.',
+    thumbnail: 'https://drive.google.com/thumbnail?id=1czZQYhpmcZ96f4nXkcfcRP9Viw0WqKgL&sz=w1000',
+    images: [
+      'https://drive.google.com/thumbnail?id=1ao-MbBh9BIkIs0mRsen2e-DMA88P1t92&sz=w1200', // Rectangle (Updated)
+      'https://drive.google.com/thumbnail?id=1JTi6oR_Hqxob72cPqbSPwHW2sOdkcU5d&sz=w1000', // Square 1 (Updated)
+      'https://drive.google.com/thumbnail?id=1olRK-onrAWo1Sm8Xazkzh64LPACozk9v&sz=w1000', // Square 2 (Updated)
+    ],
+    tools: ['Adobe InDesign'],
     year: '2025'
   },
   {
@@ -52,33 +71,16 @@ export const PROJECTS: Project[] = [
     category: 'Branding',
     description: 'A cohesive brand identity for a conceptual co-working café',
     fullDescription: 'Hues & Brews is a conceptual co-working café project designed to support creativity, collaboration, and focused work among freelancers and designers. The project explores spatial branding and experience design by combining functional work zones with curated creative elements such as resource displays, challenge walls, and community-driven spaces. Through thoughtful layout, visual identity, and user-centric planning, Hues & Brews creates an environment where productivity and inspiration naturally coexist.',
-    thumbnail: 'https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?q=80&w=1000&auto=format&fit=crop',
+    thumbnail: 'https://drive.google.com/thumbnail?id=16tPxa9pk-njoMYbVf6FCN-Q5Nbsq2L4G&sz=w1000',
     images: [
-      'https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1511537632536-b7a427f7222c?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1447933601403-0c6688de566e?q=80&w=1200&auto=format&fit=crop'
+      'https://drive.google.com/thumbnail?id=1zpNlskgdMBjfjVvC2Cjn2U2qcnaabwc7&sz=w1000', // Rect 1
+      'https://drive.google.com/thumbnail?id=1aEYLgnHdVgGpGxhiyhUjSg-BBAYWQB1R&sz=w1000', // Rect 2
+      'https://drive.google.com/thumbnail?id=14rAZaJmlBmn_t9e9YEQIgWCxjlnsrNxL&sz=w1200', // Big Rectangle
+      'https://drive.google.com/thumbnail?id=1G9w8Nxx57pjzDjJESpk-xkubkWnCoFZ3&sz=w1000', // Square 1 (Replaced)
+      'https://drive.google.com/thumbnail?id=1BaLpLDQPbybAxaA9nVukF4NS8ihZtlXA&sz=w1000', // Square 2 (New)
+      'https://drive.google.com/thumbnail?id=1hZ8G23uFUSmmCEARQ9O7egGjZE44rDOL&sz=w1200', // Final Rectangle
     ],
     tools: ['Adobe Illustrator'],
-    year: '2024'
-  },
-  {
-    id: '3',
-    title: 'Morag Myercough\nMagazine',
-    category: 'Publication Design',
-    description: 'Redefining the print-to-digital transition with high-contrast editorial layouts.',
-    fullDescription: 'CHALLENGE: Design a print magazine for a world that only reads digitally. How do we make paper feel necessary again? SOLUTION: "META" magazine uses extreme typographic scales and high-gloss textures that cannot be replicated on OLED screens. The layout breaks the traditional 12-column grid to force the reader to physically rotate the magazine, creating a tangible interaction.',
-    thumbnail: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop',
-    images: [
-      'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1633167606207-d840b5070fc2?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1516383274235-5f42d6c6426d?q=80&w=1200&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?q=80&w=1200&auto=format&fit=crop'
-    ],
-    tools: ['Adobe InDesign'],
     year: '2025'
   }
 ];
@@ -86,7 +88,7 @@ export const PROJECTS: Project[] = [
 export const SYSTEM_PROMPT = `
 You are the AI design assistant for Maansi Dhamani.
 Maansi is a 2nd-year Visual Communication student.
-Her portfolio is strictly focused on: Packaging Design, Branding, and Publication Design.
+Her portfolio is strictly focused on: Packaging Design, Branding, and Publication & Editorial Design.
 
 Your goal is to help visitors understand her design philosophy and these specific five projects.
 Available projects:
