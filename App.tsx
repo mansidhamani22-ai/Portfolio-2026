@@ -407,8 +407,8 @@ const IDCard = () => {
     <div className="absolute inset-0 z-10 flex justify-center pt-0 pointer-events-none perspective-[1200px]">
       <div className="origin-top animate-[dropSwing_2.5s_ease-out_forwards] flex flex-col items-center">
         
-        {/* Strap - Black - Responsive Height - ADJUSTED HEIGHTS */}
-        <div className="w-[42px] h-[12vh] md:h-[18vh] lg:h-[30vh] bg-[#050505] relative z-20 flex flex-col items-center shadow-2xl">
+        {/* Strap - Black - Responsive Height - ADJUSTED HEIGHTS - Gray in Dark Mode */}
+        <div className="w-[42px] h-[12vh] md:h-[18vh] lg:h-[30vh] bg-[#050505] dark:bg-[#333333] transition-colors duration-500 relative z-20 flex flex-col items-center shadow-2xl">
              <div className="absolute inset-0 opacity-[0.2] bg-[url('https://www.transparenttextures.com/patterns/fabric-of-squares.png')] pointer-events-none"></div>
              <div className="absolute inset-y-0 left-0 w-[1px] bg-white/20"></div>
              <div className="absolute inset-y-0 right-0 w-[1px] bg-white/20"></div>
@@ -503,7 +503,7 @@ const IDCard = () => {
 
                             {/* Interests */}
                             <div className="space-y-3 w-full">
-                                <p className="text-[9px] font-mono text-orange-500 tracking-widest border-b border-orange-500/20 pb-1 w-fit">Interests</p>
+                                <p className="text-[9px] font-mono text-white tracking-widest border-b border-orange-500/20 pb-1 w-fit">Interests</p>
                                 <div className="grid grid-cols-2 gap-x-1 w-full">
                                     <ul className="text-[10px] font-mono text-white/80 space-y-1.5 leading-tight">
                                         <li className="flex items-start"><span className="mr-2 opacity-50">•</span>Typography</li>
