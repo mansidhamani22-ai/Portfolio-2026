@@ -78,6 +78,16 @@ const ResumePage: React.FC<ResumePageProps> = ({ onBack }) => {
              <p className="text-sm leading-relaxed font-light text-gray-500 dark:text-gray-400">
                 A multidisciplinary designer crafting visual narratives through branding, packaging, and editorial design.
              </p>
+             
+             <a 
+               href="https://drive.google.com/file/d/1jpUrHkoLULdjYiFCAkL98cR1U8A_2HBg/view?usp=sharing" 
+               target="_blank"
+               rel="noopener noreferrer"
+               className="inline-flex items-center space-x-2 text-[10px] font-black uppercase tracking-widest bg-black dark:bg-white text-white dark:text-black px-4 py-2 rounded-full mt-2 hover:opacity-80 transition-opacity"
+             >
+                <span>Download PDF</span>
+                <ExternalLink size={12} />
+             </a>
           </div>
         </div>
 

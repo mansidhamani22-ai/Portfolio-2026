@@ -23,8 +23,6 @@ const Header: React.FC<HeaderProps> = ({
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const RESUME_LINK = "https://drive.google.com/file/d/1jpUrHkoLULdjYiFCAkL98cR1U8A_2HBg/view?usp=sharing";
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -52,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({
     if (id === 'about') {
       if (currentView !== 'about') onViewChange('about');
     } else if (id === 'resume') {
-      window.open(RESUME_LINK, '_blank');
+      if (currentView !== 'resume') onViewChange('resume');
     } else if (id === 'home' || id === 'contact') {
       if (currentView === 'home') {
         const element = document.getElementById(id);
@@ -177,9 +175,9 @@ const Header: React.FC<HeaderProps> = ({
 
                 <div className="flex flex-col space-y-8 pt-8">
                     <nav className="flex flex-col space-y-6">
-                        <a href="#" className={mobileLinkClass}>Instagram</a>
-                        <a href="#" className={mobileLinkClass}>Linkedin</a>
-                        <a href="#" className={mobileLinkClass}>Behance</a>
+                        <a href="https://www.instagram.com/_maansi4301?igsh=MTg2ODR6OXAzOTZqMw==" target="_blank" rel="noopener noreferrer" className={mobileLinkClass}>Instagram</a>
+                        <a href="https://www.linkedin.com/in/maansi-dhamani-85301a348" target="_blank" rel="noopener noreferrer" className={mobileLinkClass}>Linkedin</a>
+                        <a href="https://www.behance.net/maansidhamani22" target="_blank" rel="noopener noreferrer" className={mobileLinkClass}>Behance</a>
                     </nav>
                 </div>
             </div>

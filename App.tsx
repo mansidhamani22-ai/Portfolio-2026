@@ -513,7 +513,7 @@ const IDCard = () => {
                                     <ul className="text-[10px] font-mono text-white/80 space-y-1.5 leading-tight">
                                         <li className="flex items-start"><span className="mr-2 opacity-50">•</span>Editorial</li>
                                         <li className="flex items-start"><span className="mr-2 opacity-50">•</span>Illustration</li>
-                                        <li className="flex items-start"><span className="mr-2 opacity-50">•</span>AI Learning</li>
+                                        <li className="flex items-start whitespace-nowrap"><span className="mr-2 opacity-50">•</span>AI Learning</li>
                                     </ul>
                                 </div>
                             </div>
