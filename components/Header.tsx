@@ -47,10 +47,13 @@ const Header: React.FC<HeaderProps> = ({
         return;
     }
 
+    if (id === 'resume') {
+        window.open('https://drive.google.com/file/d/1jpUrHkoLULdjYiFCAkL98cR1U8A_2HBg/view?usp=drive_link', '_blank', 'noopener,noreferrer');
+        return;
+    }
+
     if (id === 'about') {
       if (currentView !== 'about') onViewChange('about');
-    } else if (id === 'resume') {
-      if (currentView !== 'resume') onViewChange('resume');
     } else if (id === 'home' || id === 'contact') {
       if (currentView === 'home') {
         const element = document.getElementById(id);

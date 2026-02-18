@@ -120,10 +120,10 @@ const ProjectModal: React.FC<ProjectModalProps> = ({ project, isOpen, onClose, o
 
   const handleFooterLinkClick = (link: string) => {
     if (link === 'Resume') {
-       window.open("https://drive.google.com/file/d/1jpUrHkoLULdjYiFCAkL98cR1U8A_2HBg/view?usp=sharing", '_blank');
-       return;
+        window.open('https://drive.google.com/file/d/1jpUrHkoLULdjYiFCAkL98cR1U8A_2HBg/view?usp=drive_link', '_blank', 'noopener,noreferrer');
+        return;
     }
-    
+
     onClose();
     // Allow a slight delay for modal closing animation before transitioning view
     setTimeout(() => {
